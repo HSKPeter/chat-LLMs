@@ -22,7 +22,7 @@ import {
   updateConversation,
 } from '@/utils/app/conversation';
 import { saveFolders } from '@/utils/app/folders';
-import { savePrompts } from '@/utils/app/prompts';
+import { SYSTEM_PROMPT_TEMPLATES, savePrompts } from '@/utils/app/prompts';
 import { getSettings } from '@/utils/app/settings';
 
 import { Conversation } from '@/types/chat';
@@ -113,8 +113,9 @@ const Home = ({
   // FOLDER OPERATIONS  --------------------------------------------
 
   const handleCreateFolder = (name: string, type: FolderType) => {
+    const folderId = uuidv4()
     const newFolder: FolderInterface = {
-      id: uuidv4(),
+      id: folderId,
       name,
       type,
     };
@@ -123,6 +124,8 @@ const Home = ({
 
     dispatch({ field: 'folders', value: updatedFolders });
     saveFolders(updatedFolders);
+
+    return folderId;
   };
 
   const handleDeleteFolder = (folderId: string) => {
@@ -248,9 +251,35 @@ const Home = ({
       });
   }, [defaultModelId, serverSideApiKeyIsSet, serverSidePluginKeysSet]);
 
+  const configureDefaultPrompts = async () => {
+    const isRegularUser = localStorage.getItem('isRegularUser') === 'true';
+    if (isRegularUser) {
+      return;
+    }
+    const promptsFromLocalStorage = localStorage.getItem('prompts');
+
+    const promptsSaved = JSON.parse(promptsFromLocalStorage || '[]');
+    if (promptsSaved.length === 0) {
+      const folderId = handleCreateFolder(t('Default'), 'prompt');
+
+      const prompts = SYSTEM_PROMPT_TEMPLATES
+                        .sort((a, b) => a.act.localeCompare(b.act))
+                        .map((p) => ({
+                          id: uuidv4(),
+                          name: p.act,
+                          description: p.act,
+                          content: p.prompt,
+                          folderId
+                        }));
+
+      localStorage.setItem('prompts', JSON.stringify(prompts));
+    }
+  }
+
   // ON LOAD --------------------------------------------
 
   useEffect(() => {
+    configureDefaultPrompts();
     const settings = getSettings();
     if (settings.theme) {
       dispatch({
