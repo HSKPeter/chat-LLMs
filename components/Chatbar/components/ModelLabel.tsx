@@ -1,5 +1,5 @@
 import { LargeLanguageModel, LargeLanguageModelID } from '@/types/llm';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
 interface Props {
   model: LargeLanguageModel;
@@ -31,7 +31,7 @@ const getShortName = (model: LargeLanguageModel) => {
   return shortNames[model.id];
 };
 
-export const Label: FC<Props> = ({ model }) => {
+export const ModelLabel: FC<Props> = ({ model }) => {
   const name = getShortName(model);
   const color = getColor(model);
 
