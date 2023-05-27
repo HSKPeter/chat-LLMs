@@ -63,8 +63,6 @@ export const ChatbarSettings = () => {
       <Key name="Cohere" apiKey={cohereApiKey} onApiKeyChange={handleCohereApiKeyChange} />
       <Key name="HuggingFace" apiKey={huggingFaceApiKey} onApiKeyChange={handleHuggingFaceApiKeyChange} />
 
-      {!serverSidePluginKeysSet ? <PluginKeys /> : null}
-
       <SettingDialog
         open={isSettingDialogOpen}
         onClose={() => {
