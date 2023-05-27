@@ -22,7 +22,7 @@ export const ChatbarSettings = () => {
     state: {
       openAiApiKey,
       cohereApiKey,
-      huggingFaceApiKey,
+      huggingfaceApiKey,
       // serverSideApiKeyIsSet,
       serverSidePluginKeysSet,
       conversations,
@@ -61,7 +61,7 @@ export const ChatbarSettings = () => {
 
       <Key name="OpenAI" apiKey={openAiApiKey} onApiKeyChange={handleOpenAiApiKeyChange} />
       <Key name="Cohere" apiKey={cohereApiKey} onApiKeyChange={handleCohereApiKeyChange} />
-      <Key name="HuggingFace" apiKey={huggingFaceApiKey} onApiKeyChange={handleHuggingFaceApiKeyChange} />
+      <Key name="HuggingFace" apiKey={huggingfaceApiKey} onApiKeyChange={handleHuggingFaceApiKeyChange} />
 
       <SettingDialog
         open={isSettingDialogOpen}

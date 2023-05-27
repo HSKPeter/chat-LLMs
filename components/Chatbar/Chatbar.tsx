@@ -46,11 +46,29 @@ export const Chatbar = () => {
     dispatch: chatDispatch,
   } = chatBarContextValue;
 
-  const handleApiKeyChange = useCallback(
+  const handleOpenAiApiKeyChange = useCallback(
     (apiKey: string) => {
-      homeDispatch({ field: 'apiKey', value: apiKey });
+      const field = 'openAiApiKey'
+      homeDispatch({ field, value: apiKey });
+      localStorage.setItem(field, apiKey);
+    },
+    [homeDispatch],
+  );
 
-      localStorage.setItem('apiKey', apiKey);
+  const handleCohereApiKeyChange = useCallback(
+    (apiKey: string) => {
+      const field = 'cohereApiKey'
+      homeDispatch({ field, value: apiKey });
+      localStorage.setItem(field, apiKey);
+    },
+    [homeDispatch],
+  );
+
+  const handleHuggingFaceApiKeyChange = useCallback(
+    (apiKey: string) => {
+      const field = 'huggingfaceApiKey'
+      homeDispatch({ field, value: apiKey });
+      localStorage.setItem(field, apiKey);
     },
     [homeDispatch],
   );
@@ -216,7 +234,9 @@ export const Chatbar = () => {
         handleExportData,
         handlePluginKeyChange,
         handleClearPluginKey,
-        handleApiKeyChange,
+        handleOpenAiApiKeyChange,
+        handleCohereApiKeyChange,
+        handleHuggingFaceApiKeyChange
       }}
     >
       <Sidebar<Conversation>

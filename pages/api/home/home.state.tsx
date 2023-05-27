@@ -9,7 +9,7 @@ export interface HomeInitialState {
   apiKey: string;
   openAiApiKey: string;
   cohereApiKey: string;
-  huggingFaceApiKey: string;
+  huggingfaceApiKey: string;
   pluginKeys: PluginKey[];
   loading: boolean;
   lightMode: 'light' | 'dark';
@@ -36,7 +36,7 @@ export const initialState: HomeInitialState = {
   apiKey: '',
   openAiApiKey: '',
   cohereApiKey: '',
-  huggingFaceApiKey: '',
+  huggingfaceApiKey: '',
   loading: false,
   pluginKeys: [],
   lightMode: 'dark',
