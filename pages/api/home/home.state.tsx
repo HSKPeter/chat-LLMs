@@ -7,6 +7,9 @@ import { Prompt } from '@/types/prompt';
 
 export interface HomeInitialState {
   apiKey: string;
+  openAiApiKey: string;
+  cohereApiKey: string;
+  huggingFaceApiKey: string;
   pluginKeys: PluginKey[];
   loading: boolean;
   lightMode: 'light' | 'dark';
@@ -31,6 +34,9 @@ export interface HomeInitialState {
 
 export const initialState: HomeInitialState = {
   apiKey: '',
+  openAiApiKey: '',
+  cohereApiKey: '',
+  huggingFaceApiKey: '',
   loading: false,
   pluginKeys: [],
   lightMode: 'dark',

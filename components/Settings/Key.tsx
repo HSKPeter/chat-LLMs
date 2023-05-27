@@ -6,11 +6,12 @@ import { useTranslation } from 'next-i18next';
 import { SidebarButton } from '../Sidebar/SidebarButton';
 
 interface Props {
+  name: string;
   apiKey: string;
   onApiKeyChange: (apiKey: string) => void;
 }
 
-export const Key: FC<Props> = ({ apiKey, onApiKeyChange }) => {
+export const Key: FC<Props> = ({ name, apiKey, onApiKeyChange }) => {
   const { t } = useTranslation('sidebar');
   const [isChanging, setIsChanging] = useState(false);
   const [newKey, setNewKey] = useState(apiKey);
@@ -71,7 +72,7 @@ export const Key: FC<Props> = ({ apiKey, onApiKeyChange }) => {
     </div>
   ) : (
     <SidebarButton
-      text={t('OpenAI API Key')}
+      text={t(name + ' API Key')}
       icon={<IconKey size={18} />}
       onClick={() => setIsChanging(true)}
     />

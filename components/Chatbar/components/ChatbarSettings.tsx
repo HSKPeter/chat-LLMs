@@ -20,9 +20,10 @@ export const ChatbarSettings = () => {
 
   const {
     state: {
-      apiKey,
-      lightMode,
-      serverSideApiKeyIsSet,
+      openAiApiKey,
+      cohereApiKey,
+      huggingFaceApiKey,
+      // serverSideApiKeyIsSet,
       serverSidePluginKeysSet,
       conversations,
     },
@@ -33,7 +34,9 @@ export const ChatbarSettings = () => {
     handleClearConversations,
     handleImportConversations,
     handleExportData,
-    handleApiKeyChange,
+    handleOpenAiApiKeyChange,
+    handleCohereApiKeyChange,
+    handleHuggingFaceApiKeyChange,
   } = useContext(ChatbarContext);
 
   return (
@@ -56,9 +59,9 @@ export const ChatbarSettings = () => {
         onClick={() => setIsSettingDialog(true)}
       />
 
-      {!serverSideApiKeyIsSet ? (
-        <Key apiKey={apiKey} onApiKeyChange={handleApiKeyChange} />
-      ) : null}
+      <Key name="OpenAI" apiKey={openAiApiKey} onApiKeyChange={handleOpenAiApiKeyChange} />
+      <Key name="Cohere" apiKey={cohereApiKey} onApiKeyChange={handleCohereApiKeyChange} />
+      <Key name="HuggingFace" apiKey={huggingFaceApiKey} onApiKeyChange={handleHuggingFaceApiKeyChange} />
 
       {!serverSidePluginKeysSet ? <PluginKeys /> : null}
 
