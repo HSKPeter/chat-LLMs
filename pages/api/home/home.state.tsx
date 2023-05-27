@@ -1,6 +1,7 @@
 import { Conversation, Message } from '@/types/chat';
 import { ErrorMessage } from '@/types/error';
 import { FolderInterface } from '@/types/folder';
+import { LargeLanguageModel, LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 import { OpenAIModel, OpenAIModelID } from '@/types/openai';
 import { PluginKey } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
@@ -15,7 +16,7 @@ export interface HomeInitialState {
   lightMode: 'light' | 'dark';
   messageIsStreaming: boolean;
   modelError: ErrorMessage | null;
-  models: OpenAIModel[];
+  models: LargeLanguageModel[];
   folders: FolderInterface[];
   conversations: Conversation[];
   selectedConversation: Conversation | undefined;
@@ -42,7 +43,9 @@ export const initialState: HomeInitialState = {
   lightMode: 'dark',
   messageIsStreaming: false,
   modelError: null,
-  models: [],
+  models: [
+    LargeLanguageModels['gpt-3.5-turbo']
+  ],
   folders: [],
   conversations: [],
   selectedConversation: undefined,
