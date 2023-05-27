@@ -1,4 +1,4 @@
-import { IconClearAll, IconSettings } from '@tabler/icons-react';
+import { IconSettings } from '@tabler/icons-react';
 import {
   MutableRefObject,
   memo,
@@ -289,18 +289,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     setShowSettings(!showSettings);
   };
 
-  const onClearAll = () => {
-    if (
-      confirm(t<string>('Are you sure you want to clear all messages?')) &&
-      selectedConversation
-    ) {
-      handleUpdateConversation(selectedConversation, {
-        key: 'messages',
-        value: [],
-      });
-    }
-  };
-
   const scrollDown = () => {
     if (autoScrollEnabled) {
       messagesEndRef.current?.scrollIntoView(true);
@@ -451,12 +439,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     onClick={handleSettings}
                   >
                     <IconSettings size={18} />
-                  </button>
-                  <button
-                    className="ml-2 cursor-pointer hover:opacity-50"
-                    onClick={onClearAll}
-                  >
-                    <IconClearAll size={18} />
                   </button>
                 </div>
                 {showSettings && (
