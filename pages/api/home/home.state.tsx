@@ -44,7 +44,8 @@ export const initialState: HomeInitialState = {
   messageIsStreaming: false,
   modelError: null,
   models: [
-    LargeLanguageModels['gpt-3.5-turbo']
+    LargeLanguageModels['gpt-3.5-turbo'],
+    LargeLanguageModels['cohere']
   ],
   folders: [],
   conversations: [],
