@@ -34,6 +34,7 @@ import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
 import { MemoizedChatMessage } from './MemoizedChatMessage';
 import { ModelLabel } from '../Chatbar/components/ModelLabel';
+import { LargeLanguageModels } from '@/types/llm';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -339,6 +340,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   // const toBlockUserAccess = !(apiKey || serverSideApiKeyIsSet)
   const toBlockUserAccess = false
 
+  const hasSelectedGptModel = selectedConversation?.model === LargeLanguageModels['gpt-3.5-turbo']
+
   return (
     <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">
       {toBlockUserAccess ? (
@@ -405,7 +408,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     <div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
                       <ModelSelect />
 
-                      <SystemPrompt
+                      {hasSelectedGptModel && <SystemPrompt
                         conversation={selectedConversation}
                         prompts={prompts}
                         onChangePrompt={(prompt) =>
@@ -414,9 +417,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                             value: prompt,
                           })
                         }
-                      />
+                      />}
 
-                      <TemperatureSlider
+                      {hasSelectedGptModel && <TemperatureSlider
                         label={t('Temperature')}
                         onChangeTemperature={(temperature) =>
                           handleUpdateConversation(selectedConversation, {
@@ -424,7 +427,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                             value: temperature,
                           })
                         }
-                      />
+                      />}
                     </div>
                   )}
                 </div>
