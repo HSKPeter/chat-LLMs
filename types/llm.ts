@@ -26,6 +26,10 @@ export enum LargeLanguageModelID {
   PEGASUS_TLDR = 'google/pegasus-cnn_dailymail'
 }
 
+export const isGptModel = (model: LargeLanguageModel) => {
+  return model.type === LargeLanguageModelType.OPEN_AI;
+}
+
 export const isHuggingFaceModel = (model: LargeLanguageModel) => {
   return model.type === LargeLanguageModelType.HUGGING_FACE;
 }
