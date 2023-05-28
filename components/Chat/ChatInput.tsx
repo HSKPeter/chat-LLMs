@@ -209,6 +209,29 @@ export const ChatInput = ({
     }
   };
 
+  const optimizePrompt = async () => {
+    setIsOptimizingPrompt(true);
+    // const controller = new AbortController();
+    // const response = await fetch("api/prompt", {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   signal: controller.signal,
+    //   body: JSON.stringify({body: "body"}),
+    // });
+
+    // const data = response.body;
+    // const reader = data.getReader();
+    // const decoder = new TextDecoder();
+
+    let isFirst = true;
+    let text = '';
+    const chunkValue = "foobar"
+    setContent(chunkValue)
+    setIsOptimizingPrompt(false);
+  }
+
   const handleSubmit = (updatedVariables: string[]) => {
     const newContent = content?.replace(/{{(.*?)}}/g, (match, variable) => {
       const index = variables.indexOf(variable);
@@ -281,9 +304,7 @@ export const ChatInput = ({
         <div className="relative mx-2 flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
           <button
             className="absolute left-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
-            onClick={() => {
-              setIsOptimizingPrompt(true);
-            }}
+            onClick={optimizePrompt}
             onKeyDown={(e) => {}}
           >
             <IconBolt size={20} />

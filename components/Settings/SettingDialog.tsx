@@ -88,7 +88,7 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
             </select>
 
             <div className="text-sm font-bold my-2 text-black dark:text-neutral-200">
-              {t('Prompt Optimization')}
+              {t('GPT Prompt Optimization')}
             </div>
 
             <select
