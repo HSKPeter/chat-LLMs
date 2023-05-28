@@ -45,7 +45,8 @@ export const initialState: HomeInitialState = {
   modelError: null,
   models: [
     LargeLanguageModels['gpt-3.5-turbo'],
-    LargeLanguageModels['cohere']
+    LargeLanguageModels['cohere'],
+    LargeLanguageModels['facebook/blenderbot-3B']
   ],
   folders: [],
   conversations: [],
