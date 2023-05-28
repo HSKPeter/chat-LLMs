@@ -234,8 +234,8 @@ const Home = ({
   }, [defaultModelId, serverSideApiKeyIsSet, serverSidePluginKeysSet]);
 
   const configureDefaultPrompts = async () => {
-    const isRegularUser = localStorage.getItem('isRegularUser') === 'true';
-    if (isRegularUser) {
+    const isNewUser = localStorage.getItem("isNewUser") === null;
+    if (!isNewUser) {
       return;
     }
     const promptsFromLocalStorage = localStorage.getItem('prompts');
@@ -255,6 +255,7 @@ const Home = ({
                         }));
 
       localStorage.setItem('prompts', JSON.stringify(prompts));
+      localStorage.setItem('isNewUser', 'false');
     }
   }
 
