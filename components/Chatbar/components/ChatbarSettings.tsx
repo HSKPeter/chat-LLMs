@@ -8,11 +8,9 @@ import HomeContext from '@/pages/api/home/home.context';
 import { SettingDialog } from '@/components/Settings/SettingDialog';
 
 import { Import } from '../../Settings/Import';
-import { Key } from '../../Settings/Key';
 import { SidebarButton } from '../../Sidebar/SidebarButton';
 import ChatbarContext from '../Chatbar.context';
 import { ClearConversations } from './ClearConversations';
-import { PluginKeys } from './PluginKeys';
 
 export const ChatbarSettings = () => {
   const { t } = useTranslation('sidebar');
@@ -20,11 +18,6 @@ export const ChatbarSettings = () => {
 
   const {
     state: {
-      openAiApiKey,
-      cohereApiKey,
-      huggingfaceApiKey,
-      // serverSideApiKeyIsSet,
-      serverSidePluginKeysSet,
       conversations,
     },
     dispatch: homeDispatch,
@@ -34,9 +27,6 @@ export const ChatbarSettings = () => {
     handleClearConversations,
     handleImportConversations,
     handleExportData,
-    handleOpenAiApiKeyChange,
-    handleCohereApiKeyChange,
-    handleHuggingFaceApiKeyChange,
   } = useContext(ChatbarContext);
 
   return (
@@ -58,10 +48,6 @@ export const ChatbarSettings = () => {
         icon={<IconSettings size={18} />}
         onClick={() => setIsSettingDialog(true)}
       />
-
-      <Key name="OpenAI" apiKey={openAiApiKey} onApiKeyChange={handleOpenAiApiKeyChange} />
-      <Key name="Cohere" apiKey={cohereApiKey} onApiKeyChange={handleCohereApiKeyChange} />
-      <Key name="HuggingFace" apiKey={huggingfaceApiKey} onApiKeyChange={handleHuggingFaceApiKeyChange} />
 
       <SettingDialog
         open={isSettingDialogOpen}
