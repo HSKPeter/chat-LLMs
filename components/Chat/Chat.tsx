@@ -125,18 +125,18 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           signal: controller.signal,
           body,
         });
-        // if (!response.ok) {
-        //   homeDispatch({ field: 'loading', value: false });
-        //   homeDispatch({ field: 'messageIsStreaming', value: false });
-        //   toast.error(response.statusText);
-        //   return;
-        // }
-        // const data = response.body;
-        // if (!data) {
-        //   homeDispatch({ field: 'loading', value: false });
-        //   homeDispatch({ field: 'messageIsStreaming', value: false });
-        //   return;
-        // }
+        if (!response.ok) {
+          homeDispatch({ field: 'loading', value: false });
+          homeDispatch({ field: 'messageIsStreaming', value: false });
+          toast.error(response.statusText);
+          return;
+        }
+        const data = response.body;
+        if (!data) {
+          homeDispatch({ field: 'loading', value: false });
+          homeDispatch({ field: 'messageIsStreaming', value: false });
+          return;
+        }
         if (!plugin) {
           if (updatedConversation.messages.length === 1) {
             const { content } = message;
@@ -148,21 +148,20 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
             };
           }
           homeDispatch({ field: 'loading', value: false });
-          // const reader = data.getReader();
-          // const decoder = new TextDecoder();
+          const reader = data.getReader();
+          const decoder = new TextDecoder();
           let done = false;
           let isFirst = true;
           let text = '';
-          // while (!done) {
-          //   if (stopConversationRef.current === true) {
-          //     controller.abort();
-          //     done = true;
-          //     break;
-          //   }
-          //   const { value, done: doneReading } = await reader.read();
-          //   done = doneReading;
-          //   const chunkValue = decoder.decode(value);
-          const chunkValue = selectedConversation.model.name;
+          while (!done) {
+            if (stopConversationRef.current === true) {
+              controller.abort();
+              done = true;
+              break;
+            }
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
             text += chunkValue;
             if (isFirst) {
               isFirst = false;
@@ -198,7 +197,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                 value: updatedConversation,
               });
             }
-          // }
+          }
           saveConversation(updatedConversation);
           const updatedConversations: Conversation[] = conversations.map(
             (conversation) => {

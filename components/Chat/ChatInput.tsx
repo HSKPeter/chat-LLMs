@@ -18,7 +18,7 @@ import {
 
 import { useTranslation } from 'next-i18next';
 
-import { Message } from '@/types/chat';
+import { ChatBody, Message } from '@/types/chat';
 import { Plugin } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
 
@@ -27,7 +27,7 @@ import HomeContext from '@/pages/api/home/home.context';
 import { PluginSelect } from './PluginSelect';
 import { PromptList } from './PromptList';
 import { VariableModal } from './VariableModal';
-import { isGptModel } from '@/types/llm';
+import { LargeLanguageModelID, LargeLanguageModels, isGptModel } from '@/types/llm';
 
 interface Props {
   onSend: (message: Message, plugin: Plugin | null) => void;
@@ -37,6 +37,26 @@ interface Props {
   textareaRef: MutableRefObject<HTMLTextAreaElement | null>;
   showScrollDownButton: boolean;
 }
+
+const formPromptForPromptOptimization = (prompt: string, messages: Message[] = []) => {
+  const previousConversationHistory = messages.map((message) => {
+    return `${message.role}: ${message.content}`;
+  }).join('\n');
+  return `
+  ${
+    messages.length > 0
+    ? `Here is the previous conversation history
+    """
+    ${previousConversationHistory}
+    """`
+    : ''
+  }
+  
+  Optimize this prompt "${prompt}"
+  
+  Your output should be the optimized prompt ONLY, no other text, no quotation marks.
+  `;
+};
 
 export const ChatInput = ({
   onSend,
@@ -212,25 +232,69 @@ export const ChatInput = ({
   };
 
   const optimizePrompt = async () => {
+    if (content === undefined || content.trim().length === 0) {
+      return
+    }
+
+    const confirmToOptimizePrompt = confirm(`Optimize prompt with ${selectedConversation?.model.name}?\nNote: It could result in greater charges on your account.`);
+    
+    if (!confirmToOptimizePrompt) {
+      return;
+    }
+
     setIsOptimizingPrompt(true);
-    // const controller = new AbortController();
-    // const response = await fetch("api/prompt", {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   signal: controller.signal,
-    //   body: JSON.stringify({body: "body"}),
-    // });
 
-    // const data = response.body;
-    // const reader = data.getReader();
-    // const decoder = new TextDecoder();
+    const chatBody: ChatBody = {
+      model: selectedConversation?.model ?? LargeLanguageModels['gpt-3.5-turbo'],
+      messages: [],
+      key: process.env.OPENAI_API_KEY ?? "",
+      prompt: formPromptForPromptOptimization(content, selectedConversation?.messages),
+      temperature: selectedConversation?.temperature ?? 0.7,
+    };
 
+    const controller = new AbortController();
+    const response = await fetch("api/prompt", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify(chatBody),
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = response.body;
+
+    if (!data) {
+      return;
+    }
+
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
     let isFirst = true;
     let text = '';
-    const chunkValue = "foobar"
-    setContent(chunkValue)
+
+    while (!done) {
+      if (stopConversationRef.current === true) {
+        controller.abort();
+        done = true;
+        break;
+      }
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      text += chunkValue;
+      setContent(text)
+      // if (isFirst) {
+      //   isFirst = false;
+      // } else {
+      // }
+    }
+    
     setIsOptimizingPrompt(false);
   }
 
@@ -304,12 +368,18 @@ export const ChatInput = ({
           )}
 
         <div className="relative flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
-          {toEnablePromptOptimizationFeature && <button
+          {toEnablePromptOptimizationFeature &&
+          <button
+            title={isOptimizingPrompt ? undefined : 'Optimize prompt'}
             className="absolute left-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
             onClick={optimizePrompt}
             onKeyDown={(e) => {}}
           >
-            <IconBolt size={20} />
+            {
+              isOptimizingPrompt 
+                ? <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-neutral-800 opacity-60 dark:border-neutral-100"></div> 
+                : <IconBolt size={20} />
+            }
           </button>}
           <textarea
             ref={textareaRef}
