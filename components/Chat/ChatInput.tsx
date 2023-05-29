@@ -28,6 +28,7 @@ import { PluginSelect } from './PluginSelect';
 import { PromptList } from './PromptList';
 import { VariableModal } from './VariableModal';
 import { LargeLanguageModelID, LargeLanguageModels, isGptModel } from '@/types/llm';
+import { toast } from 'react-hot-toast';
 
 interface Props {
   onSend: (message: Message, plugin: Plugin | null) => void;
@@ -49,7 +50,7 @@ export const ChatInput = ({
   const { t } = useTranslation('chat');
 
   const {
-    state: { selectedConversation, messageIsStreaming, prompts, promptOptimizationMode },
+    state: { selectedConversation, messageIsStreaming, prompts, promptOptimizationMode, openAiApiKey },
 
     dispatch: homeDispatch,
   } = useContext(HomeContext);
@@ -63,7 +64,10 @@ export const ChatInput = ({
   const [variables, setVariables] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [plugin, setPlugin] = useState<Plugin | null>(null);
-  const toEnablePromptOptimizationFeature = selectedConversation?.model && isGptModel(selectedConversation?.model) && promptOptimizationMode !== 'none';
+  const toEnablePromptOptimizationFeature = selectedConversation?.model && 
+                                            isGptModel(selectedConversation?.model) && 
+                                            promptOptimizationMode !== 'none' && 
+                                            openAiApiKey.trim() !== '';
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
@@ -233,7 +237,7 @@ export const ChatInput = ({
 
   const optimizePrompt = async () => {
     if (content === undefined || content.trim().length === 0) {
-      alert("Please enter a prompt before performing prompt optimization.");
+      toast.error('Please enter a prompt before performing prompt optimization.');
       return
     }
 
@@ -276,7 +280,6 @@ export const ChatInput = ({
     const reader = data.getReader();
     const decoder = new TextDecoder();
     let done = false;
-    let isFirst = true;
     let text = '';
 
     while (!done) {
@@ -289,11 +292,7 @@ export const ChatInput = ({
       done = doneReading;
       const chunkValue = decoder.decode(value);
       text += chunkValue;
-      setContent(text)
-      // if (isFirst) {
-      //   isFirst = false;
-      // } else {
-      // }
+      setContent(text);
     }
     
     setIsOptimizingPrompt(false);
