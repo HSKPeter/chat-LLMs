@@ -1,4 +1,4 @@
-import { IconClearAll, IconSettings } from '@tabler/icons-react';
+import { IconSettings } from '@tabler/icons-react';
 import {
   MutableRefObject,
   memo,
@@ -33,6 +33,8 @@ import { ModelSelect } from './ModelSelect';
 import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
 import { MemoizedChatMessage } from './MemoizedChatMessage';
+import { ModelLabel } from '../Chatbar/components/ModelLabel';
+import { LargeLanguageModels } from '@/types/llm';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -46,7 +48,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       selectedConversation,
       conversations,
       models,
-      apiKey,
+      openAiApiKey,
       pluginKeys,
       serverSideApiKeyIsSet,
       messageIsStreaming,
@@ -60,7 +62,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
   const [currentMessage, setCurrentMessage] = useState<Message>();
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
-  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showScrollDownButton, setShowScrollDownButton] =
     useState<boolean>(false);
 
@@ -71,6 +72,11 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
       if (selectedConversation) {
+        if (openAiApiKey.trim().length === 0 && selectedConversation.model === LargeLanguageModels['gpt-3.5-turbo']) {
+          toast.error(t('OpenAI API key is not set.  Please configure it in the settings modal.'));
+          return;
+        }
+
         let updatedConversation: Conversation;
         if (deleteCount) {
           const updatedMessages = [...selectedConversation.messages];
@@ -96,7 +102,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         const chatBody: ChatBody = {
           model: updatedConversation.model,
           messages: updatedConversation.messages,
-          key: apiKey,
+          key: openAiApiKey,
           prompt: updatedConversation.prompt,
           temperature: updatedConversation.temperature,
         };
@@ -246,7 +252,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       }
     },
     [
-      apiKey,
+      openAiApiKey,
       conversations,
       pluginKeys,
       selectedConversation,
@@ -284,21 +290,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     });
   };
 
-  const handleSettings = () => {
-    setShowSettings(!showSettings);
-  };
-
-  const onClearAll = () => {
-    if (
-      confirm(t<string>('Are you sure you want to clear all messages?')) &&
-      selectedConversation
-    ) {
-      handleUpdateConversation(selectedConversation, {
-        key: 'messages',
-        value: [],
-      });
-    }
-  };
+  // const handleSettings = () => {
+  //   setShowSettings(!showSettings);
+  // };
 
   const scrollDown = () => {
     if (autoScrollEnabled) {
@@ -347,22 +341,27 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     };
   }, [messagesEndRef]);
 
+  // const toBlockUserAccess = !(apiKey || serverSideApiKeyIsSet)
+  const toBlockUserAccess = false
+
+  const hasSelectedGptModel = selectedConversation?.model === LargeLanguageModels['gpt-3.5-turbo']
+
   return (
     <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">
-      {!(apiKey || serverSideApiKeyIsSet) ? (
+      {toBlockUserAccess ? (
         <div className="mx-auto flex h-full w-[300px] flex-col justify-center space-y-6 sm:w-[600px]">
           <div className="text-center text-4xl font-bold text-black dark:text-white">
-            Welcome to Chatbot UI
+            Welcome to Chat LLMs
           </div>
           <div className="text-center text-lg text-black dark:text-white">
-            <div className="mb-8">{`Chatbot UI is an open source clone of OpenAI's ChatGPT UI.`}</div>
+            <div className="mb-8">{`Chat LLMs is an open source clone of OpenAI's ChatGPT UI.`}</div>
             <div className="mb-2 font-bold">
-              Important: Chatbot UI is 100% unaffiliated with OpenAI.
+              Important: Chat LLMs is 100% unaffiliated with OpenAI.
             </div>
           </div>
           <div className="text-center text-gray-500 dark:text-gray-400">
             <div className="mb-2">
-              Chatbot UI allows you to plug in your API key to use this UI with
+              Chat LLMs allows you to plug in your API key to use this UI with
               their API.
             </div>
             <div className="mb-2">
@@ -405,7 +404,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                         <Spinner size="16px" className="mx-auto" />
                       </div>
                     ) : (
-                      'Chatbot UI'
+                      'Chat LLMs'
                     )}
                   </div>
 
@@ -413,7 +412,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     <div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
                       <ModelSelect />
 
-                      <SystemPrompt
+                      {hasSelectedGptModel && <SystemPrompt
                         conversation={selectedConversation}
                         prompts={prompts}
                         onChangePrompt={(prompt) =>
@@ -422,9 +421,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                             value: prompt,
                           })
                         }
-                      />
+                      />}
 
-                      <TemperatureSlider
+                      {hasSelectedGptModel && <TemperatureSlider
                         label={t('Temperature')}
                         onChangeTemperature={(temperature) =>
                           handleUpdateConversation(selectedConversation, {
@@ -432,36 +431,19 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                             value: temperature,
                           })
                         }
-                      />
+                      />}
                     </div>
                   )}
                 </div>
               </>
             ) : (
               <>
-                <div className="sticky top-0 z-10 flex justify-center border border-b-neutral-300 bg-neutral-100 py-2 text-sm text-neutral-500 dark:border-none dark:bg-[#444654] dark:text-neutral-200">
-                  {t('Model')}: {selectedConversation?.model.name} | {t('Temp')}
-                  : {selectedConversation?.temperature} |
-                  <button
-                    className="ml-2 cursor-pointer hover:opacity-50"
-                    onClick={handleSettings}
-                  >
-                    <IconSettings size={18} />
-                  </button>
-                  <button
-                    className="ml-2 cursor-pointer hover:opacity-50"
-                    onClick={onClearAll}
-                  >
-                    <IconClearAll size={18} />
-                  </button>
+                <div className="sticky top-0 z-10 flex justify-center items-center border border-b-neutral-300 bg-neutral-100 py-2 text-sm text-neutral-500 dark:border-none dark:bg-[#444654] dark:text-neutral-200">
+                  {selectedConversation?.model && (
+                    <ModelLabel model={selectedConversation?.model} />
+                  )}
+                  <div className="ml-2">{selectedConversation?.name}</div>
                 </div>
-                {showSettings && (
-                  <div className="flex flex-col space-y-10 md:mx-auto md:max-w-xl md:gap-6 md:py-3 md:pt-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl">
-                    <div className="flex h-full flex-col space-y-4 border-b border-neutral-200 p-4 dark:border-neutral-600 md:rounded-lg md:border">
-                      <ModelSelect />
-                    </div>
-                  </div>
-                )}
 
                 {selectedConversation?.messages.map((message, index) => (
                   <MemoizedChatMessage

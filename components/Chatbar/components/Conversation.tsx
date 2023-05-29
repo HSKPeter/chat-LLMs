@@ -20,6 +20,7 @@ import HomeContext from '@/pages/api/home/home.context';
 
 import SidebarActionButton from '@/components/Buttons/SidebarActionButton';
 import ChatbarContext from '@/components/Chatbar/Chatbar.context';
+import { ModelLabel } from './ModelLabel';
 
 interface Props {
   conversation: Conversation;
@@ -104,7 +105,7 @@ export const ConversationComponent = ({ conversation }: Props) => {
     <div className="relative flex items-center">
       {isRenaming && selectedConversation?.id === conversation.id ? (
         <div className="flex w-full items-center gap-3 rounded-lg bg-[#343541]/90 p-3">
-          <IconMessage size={18} />
+          <ModelLabel model={selectedConversation?.model} />
           <input
             className="mr-12 flex-1 overflow-hidden overflow-ellipsis border-neutral-400 bg-transparent text-left text-[12.5px] leading-3 text-white outline-none focus:border-neutral-100"
             type="text"
@@ -128,7 +129,7 @@ export const ConversationComponent = ({ conversation }: Props) => {
           draggable="true"
           onDragStart={(e) => handleDragStart(e, conversation)}
         >
-          <IconMessage size={18} />
+          <ModelLabel model={conversation.model} />
           <div
             className={`relative max-h-5 flex-1 overflow-hidden text-ellipsis whitespace-nowrap break-all text-left text-[12.5px] leading-3 ${
               selectedConversation?.id === conversation.id ? 'pr-12' : 'pr-1'

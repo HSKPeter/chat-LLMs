@@ -1,5 +1,5 @@
 import { DEFAULT_SYSTEM_PROMPT, DEFAULT_TEMPERATURE } from '@/utils/app/const';
-import { OpenAIError, OpenAIStream, cohereGenerate, huggingfaceGenerate } from '@/utils/server';
+import { OpenAIError, OpenAIStream } from '@/utils/server';
 
 import { ChatBody, Message } from '@/types/chat';
 
@@ -8,7 +8,6 @@ import wasm from '../../node_modules/@dqbd/tiktoken/lite/tiktoken_bg.wasm?module
 
 import tiktokenModel from '@dqbd/tiktoken/encoders/cl100k_base.json';
 import { Tiktoken, init } from '@dqbd/tiktoken/lite/init';
-import { isCohereModel, isHuggingFaceModel } from '@/types/llm';
 
 export const config = {
   runtime: 'edge',
@@ -19,15 +18,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { model, messages, key, prompt, temperature } = (await req.json()) as ChatBody;
 
     await init((imports) => WebAssembly.instantiate(wasm, imports));
-
-    if (isHuggingFaceModel(model)) {
-      const result = await huggingfaceGenerate(model, messages)
-      return new Response(result);
-    } else if (isCohereModel(model)) {
-      const result = await cohereGenerate(messages)
-      return new Response(result);
-    }
-
     const encoding = new Tiktoken(
       tiktokenModel.bpe_ranks,
       tiktokenModel.special_tokens,

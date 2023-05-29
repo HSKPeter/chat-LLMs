@@ -3,7 +3,7 @@ import { useContext } from 'react';
 
 import { useTranslation } from 'next-i18next';
 
-import { OpenAIModel } from '@/types/openai';
+import { LargeLanguageModel } from '@/types/llm';
 
 import HomeContext from '@/pages/api/home/home.context';
 
@@ -22,7 +22,7 @@ export const ModelSelect = () => {
         key: 'model',
         value: models.find(
           (model) => model.id === e.target.value,
-        ) as OpenAIModel,
+        ) as LargeLanguageModel,
       });
   };
 
@@ -33,7 +33,7 @@ export const ModelSelect = () => {
       </label>
       <div className="w-full rounded-lg border border-neutral-200 bg-transparent pr-2 text-neutral-900 dark:border-neutral-600 dark:text-white">
         <select
-          className="w-full bg-transparent p-2"
+          className="w-full bg-transparent p-2 outline-none"
           placeholder={t('Select a model') || ''}
           value={selectedConversation?.model?.id || defaultModelId}
           onChange={handleChange}
@@ -44,9 +44,7 @@ export const ModelSelect = () => {
               value={model.id}
               className="dark:bg-[#343541] dark:text-white"
             >
-              {model.id === defaultModelId
-                ? `Default (${model.name})`
-                : model.name}
+              {model.name}
             </option>
           ))}
         </select>

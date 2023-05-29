@@ -18,7 +18,7 @@ import {
 
 import { useTranslation } from 'next-i18next';
 
-import { Message } from '@/types/chat';
+import { ChatBody, Message } from '@/types/chat';
 import { Plugin } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
 
@@ -27,6 +27,8 @@ import HomeContext from '@/pages/api/home/home.context';
 import { PluginSelect } from './PluginSelect';
 import { PromptList } from './PromptList';
 import { VariableModal } from './VariableModal';
+import { LargeLanguageModelID, LargeLanguageModels, isGptModel } from '@/types/llm';
+import { toast } from 'react-hot-toast';
 
 interface Props {
   onSend: (message: Message, plugin: Plugin | null) => void;
@@ -48,26 +50,50 @@ export const ChatInput = ({
   const { t } = useTranslation('chat');
 
   const {
-    state: { selectedConversation, messageIsStreaming, prompts },
+    state: { selectedConversation, messageIsStreaming, prompts, promptOptimizationMode, openAiApiKey },
 
     dispatch: homeDispatch,
   } = useContext(HomeContext);
 
   const [content, setContent] = useState<string>();
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [isOptimizingPrompt, setIsOptimizingPrompt] = useState<boolean>(false);
   const [showPromptList, setShowPromptList] = useState(false);
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [promptInputValue, setPromptInputValue] = useState('');
   const [variables, setVariables] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [showPluginSelect, setShowPluginSelect] = useState(false);
   const [plugin, setPlugin] = useState<Plugin | null>(null);
+  const toEnablePromptOptimizationFeature = selectedConversation?.model && 
+                                            isGptModel(selectedConversation?.model) && 
+                                            promptOptimizationMode !== 'none' && 
+                                            openAiApiKey.trim() !== '';
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
   const filteredPrompts = prompts.filter((prompt) =>
     prompt.name.toLowerCase().includes(promptInputValue.toLowerCase()),
   );
+
+  const formPromptForPromptOptimization = (prompt: string, messages: Message[] = []) => {
+    const previousConversationHistory = messages.map((message) => {
+      return `${message.role}: ${message.content}`;
+    }).join('\n');
+    return `
+    ${
+      messages.length > 0 && promptOptimizationMode === 'with full context'
+      ? `Here is the previous conversation history
+      """
+      ${previousConversationHistory}
+      """`
+      : ''
+    }
+    
+    Optimize this prompt "${prompt}"
+    
+    Your output should be the optimized prompt ONLY, no other text, no quotation marks.
+    `;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -167,7 +193,6 @@ export const ChatInput = ({
       handleSend();
     } else if (e.key === '/' && e.metaKey) {
       e.preventDefault();
-      setShowPluginSelect(!showPluginSelect);
     }
   };
 
@@ -209,6 +234,73 @@ export const ChatInput = ({
       updatePromptListVisibility(prompt.content);
     }
   };
+
+  const optimizePrompt = async () => {
+    if (content === undefined || content.trim().length === 0) {
+      toast.error('Please enter a prompt before performing prompt optimization.');
+      return
+    }
+
+    const confirmToOptimizePrompt = confirm(`Optimize prompt with ${selectedConversation?.model.name}?\nNote: It could result in greater charges on your account.`);
+    
+    if (!confirmToOptimizePrompt) {
+      return;
+    }
+
+    setIsOptimizingPrompt(true);
+
+    try {
+      const chatBody: ChatBody = {
+        model: selectedConversation?.model ?? LargeLanguageModels['gpt-3.5-turbo'],
+        messages: [],
+        key: openAiApiKey,
+        prompt: formPromptForPromptOptimization(content, selectedConversation?.messages),
+        temperature: selectedConversation?.temperature ?? 0.7,
+      };
+
+      const controller = new AbortController();
+      const response = await fetch("api/prompt", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify(chatBody),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error optimizing prompt.');
+      }
+
+      const data = response.body;
+
+      if (!data) {
+        throw new Error('No data returned');
+      }
+
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let text = '';
+
+      while (!done) {
+        if (stopConversationRef.current === true) {
+          controller.abort();
+          done = true;
+          break;
+        }
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        text += chunkValue;
+        setContent(text);
+      }
+    } catch (error) {
+      toast.error('Error optimizing prompt.');
+    } finally {
+      setIsOptimizingPrompt(false);
+    }
+  }
 
   const handleSubmit = (updatedVariables: string[]) => {
     const newContent = content?.replace(/{{(.*?)}}/g, (match, variable) => {
@@ -279,41 +371,23 @@ export const ChatInput = ({
             </button>
           )}
 
-        <div className="relative mx-2 flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
+        <div className="relative flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
+          {toEnablePromptOptimizationFeature &&
           <button
+            title={isOptimizingPrompt || messageIsStreaming ? undefined : 'Optimize prompt'}
             className="absolute left-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
-            onClick={() => setShowPluginSelect(!showPluginSelect)}
+            onClick={optimizePrompt}
             onKeyDown={(e) => {}}
           >
-            {plugin ? <IconBrandGoogle size={20} /> : <IconBolt size={20} />}
-          </button>
-
-          {showPluginSelect && (
-            <div className="absolute left-0 bottom-14 rounded bg-white dark:bg-[#343541]">
-              <PluginSelect
-                plugin={plugin}
-                onKeyDown={(e: any) => {
-                  if (e.key === 'Escape') {
-                    e.preventDefault();
-                    setShowPluginSelect(false);
-                    textareaRef.current?.focus();
-                  }
-                }}
-                onPluginChange={(plugin: Plugin) => {
-                  setPlugin(plugin);
-                  setShowPluginSelect(false);
-
-                  if (textareaRef && textareaRef.current) {
-                    textareaRef.current.focus();
-                  }
-                }}
-              />
-            </div>
-          )}
-
+            {
+              isOptimizingPrompt || messageIsStreaming
+                ? <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-neutral-800 opacity-60 dark:border-neutral-100"></div> 
+                : <IconBolt size={20} />
+            }
+          </button>}
           <textarea
             ref={textareaRef}
-            className="m-0 w-full resize-none border-0 bg-transparent p-0 py-2 pr-8 pl-10 text-black dark:bg-transparent dark:text-white md:py-3 md:pl-10"
+            className={`m-0 w-full resize-none border-0 bg-transparent p-0 py-2 pr-8 text-black dark:bg-transparent dark:text-white md:py-3 focus:outline-none focus:ring focus:border-blue-500 rounded-md ${toEnablePromptOptimizationFeature ? "pl-10 md:pl-10" : "pl-4 md:pl-4"}`}
             style={{
               resize: 'none',
               bottom: `${textareaRef?.current?.scrollHeight}px`,
@@ -333,11 +407,13 @@ export const ChatInput = ({
             onCompositionEnd={() => setIsTyping(false)}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
+            disabled={isOptimizingPrompt}
           />
 
           <button
-            className="absolute right-2 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
+            className={`absolute right-2 top-2 rounded-sm p-1 ${isOptimizingPrompt ? "" : "text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"}`}
             onClick={handleSend}
+            disabled={isOptimizingPrompt}
           >
             {messageIsStreaming ? (
               <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-neutral-800 opacity-60 dark:border-neutral-100"></div>
@@ -381,16 +457,16 @@ export const ChatInput = ({
       </div>
       <div className="px-3 pt-2 pb-3 text-center text-[12px] text-black/50 dark:text-white/50 md:px-4 md:pt-3 md:pb-6">
         <a
-          href="https://github.com/mckaywrigley/chatbot-ui"
+          href="https://github.com/HSKPeter/chat-LLMs"
           target="_blank"
           rel="noreferrer"
           className="underline"
         >
-          ChatBot UI
+          Chat LLMs
         </a>
         .{' '}
         {t(
-          "Chatbot UI is an advanced chatbot kit for OpenAI's chat models aiming to mimic ChatGPT's interface and functionality.",
+          "Chat LLMs is an advanced chatbot kit for different large language models, aiming to mimic ChatGPT's interface and functionality.",
         )}
       </div>
     </div>

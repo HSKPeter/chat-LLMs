@@ -22,7 +22,7 @@ import {
   updateConversation,
 } from '@/utils/app/conversation';
 import { saveFolders } from '@/utils/app/folders';
-import { savePrompts } from '@/utils/app/prompts';
+import { SYSTEM_PROMPT_TEMPLATES, savePrompts } from '@/utils/app/prompts';
 import { getSettings } from '@/utils/app/settings';
 
 import { Conversation } from '@/types/chat';
@@ -91,16 +91,6 @@ const Home = ({
     { enabled: true, refetchOnMount: false },
   );
 
-  useEffect(() => {
-    if (data) dispatch({ field: 'models', value: data });
-  }, [data, dispatch]);
-
-  useEffect(() => {
-    dispatch({ field: 'modelError', value: getModelsError(error) });
-  }, [dispatch, error, getModelsError]);
-
-  // FETCH MODELS ----------------------------------------------
-
   const handleSelectConversation = (conversation: Conversation) => {
     dispatch({
       field: 'selectedConversation',
@@ -113,8 +103,9 @@ const Home = ({
   // FOLDER OPERATIONS  --------------------------------------------
 
   const handleCreateFolder = (name: string, type: FolderType) => {
+    const folderId = uuidv4()
     const newFolder: FolderInterface = {
-      id: uuidv4(),
+      id: folderId,
       name,
       type,
     };
@@ -123,6 +114,8 @@ const Home = ({
 
     dispatch({ field: 'folders', value: updatedFolders });
     saveFolders(updatedFolders);
+
+    return folderId;
   };
 
   const handleDeleteFolder = (folderId: string) => {
@@ -130,30 +123,12 @@ const Home = ({
     dispatch({ field: 'folders', value: updatedFolders });
     saveFolders(updatedFolders);
 
-    const updatedConversations: Conversation[] = conversations.map((c) => {
-      if (c.folderId === folderId) {
-        return {
-          ...c,
-          folderId: null,
-        };
-      }
-
-      return c;
-    });
+    const updatedConversations: Conversation[] = conversations.filter(c => c.folderId !== folderId)
 
     dispatch({ field: 'conversations', value: updatedConversations });
     saveConversations(updatedConversations);
 
-    const updatedPrompts: Prompt[] = prompts.map((p) => {
-      if (p.folderId === folderId) {
-        return {
-          ...p,
-          folderId: null,
-        };
-      }
-
-      return p;
-    });
+    const updatedPrompts: Prompt[] = prompts.filter(p => p.folderId !== folderId);
 
     dispatch({ field: 'prompts', value: updatedPrompts });
     savePrompts(updatedPrompts);
@@ -248,9 +223,36 @@ const Home = ({
       });
   }, [defaultModelId, serverSideApiKeyIsSet, serverSidePluginKeysSet]);
 
+  const configureDefaultPrompts = async () => {
+    const isNewUser = localStorage.getItem("isNewUser") === null;
+    if (!isNewUser) {
+      return;
+    }
+    const promptsFromLocalStorage = localStorage.getItem('prompts');
+
+    const promptsSaved = JSON.parse(promptsFromLocalStorage || '[]');
+    if (promptsSaved.length === 0) {
+      const folderId = handleCreateFolder(t('Default'), 'prompt');
+
+      const prompts = SYSTEM_PROMPT_TEMPLATES
+                        .sort((a, b) => a.act.localeCompare(b.act))
+                        .map((p) => ({
+                          id: uuidv4(),
+                          name: p.act,
+                          description: p.act,
+                          content: p.prompt,
+                          folderId
+                        }));
+
+      localStorage.setItem('prompts', JSON.stringify(prompts));
+      localStorage.setItem('isNewUser', 'false');
+    }
+  }
+
   // ON LOAD --------------------------------------------
 
   useEffect(() => {
+    configureDefaultPrompts();
     const settings = getSettings();
     if (settings.theme) {
       dispatch({
@@ -360,7 +362,7 @@ const Home = ({
       }}
     >
       <Head>
-        <title>Chatbot UI</title>
+        <title>Chat LLMs</title>
         <meta name="description" content="ChatGPT but better." />
         <meta
           name="viewport"
