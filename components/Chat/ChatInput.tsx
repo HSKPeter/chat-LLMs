@@ -318,11 +318,12 @@ export const ChatInput = ({
     }
   };
 
-  useEffect(() => {
-    if (promptListRef.current) {
-      promptListRef.current.scrollTop = activePromptIndex * 30;
-    }
-  }, [activePromptIndex]);
+  // Commented out for now, as it's causing a bug of the scrolling behavior of the prompt list
+  // useEffect(() => {
+  //   if (promptListRef.current) {
+  //     promptListRef.current.scrollTop = activePromptIndex * 30;
+  //   }
+  // }, [activePromptIndex]);
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
