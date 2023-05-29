@@ -49,7 +49,7 @@ export const initialState: HomeInitialState = {
   models: [
     LargeLanguageModels['gpt-3.5-turbo'],
     LargeLanguageModels['cohere'],
-    LargeLanguageModels['facebook/blenderbot-3B']
+    LargeLanguageModels['OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5']
   ],
   folders: [],
   conversations: [],
