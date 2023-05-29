@@ -91,16 +91,6 @@ const Home = ({
     { enabled: true, refetchOnMount: false },
   );
 
-  useEffect(() => {
-    if (data) dispatch({ field: 'models', value: data });
-  }, [data, dispatch]);
-
-  useEffect(() => {
-    dispatch({ field: 'modelError', value: getModelsError(error) });
-  }, [dispatch, error, getModelsError]);
-
-  // FETCH MODELS ----------------------------------------------
-
   const handleSelectConversation = (conversation: Conversation) => {
     dispatch({
       field: 'selectedConversation',
