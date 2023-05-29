@@ -345,6 +345,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const toBlockUserAccess = false
 
   const hasSelectedGptModel = selectedConversation?.model === LargeLanguageModels['gpt-3.5-turbo']
+  const hasSelectedCohereModel = selectedConversation?.model === LargeLanguageModels.cohere
+  const toShowTemperatureSlider = hasSelectedGptModel || hasSelectedCohereModel;
 
   return (
     <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">
@@ -423,7 +425,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                         }
                       />}
 
-                      {hasSelectedGptModel && <TemperatureSlider
+                      {toShowTemperatureSlider && <TemperatureSlider
                         label={t('Temperature')}
                         onChangeTemperature={(temperature) =>
                           handleUpdateConversation(selectedConversation, {
