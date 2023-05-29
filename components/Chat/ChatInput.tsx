@@ -65,8 +65,7 @@ export const ChatInput = ({
   const [plugin, setPlugin] = useState<Plugin | null>(null);
   const toEnablePromptOptimizationFeature = selectedConversation?.model && 
                                             isGptModel(selectedConversation?.model) && 
-                                            promptOptimizationMode !== 'none' && 
-                                            openAiApiKey.trim() !== '';
+                                            promptOptimizationMode !== 'none';
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
@@ -240,6 +239,11 @@ export const ChatInput = ({
       return
     }
 
+    if (openAiApiKey.trim().length === 0) {
+      toast.error('Please provide a valid OpenAI API key in Settings, to activate this prompt optimization feature.');
+      return
+    }
+
     const confirmToOptimizePrompt = confirm(`Optimize prompt with ${selectedConversation?.model.name}?\nNote: It could result in greater charges on your account.`);
     
     if (!confirmToOptimizePrompt) {
@@ -398,7 +402,7 @@ export const ChatInput = ({
               }`,
             }}
             placeholder={
-              t('Type a message or type "/" to select a prompt...') || ''
+              t(`Type a message or type "/" to select a prompt. ${toEnablePromptOptimizationFeature ? ' Click the bulb icon to optimize your prompt.' : ''}`) || ''
             }
             value={content}
             rows={1}
