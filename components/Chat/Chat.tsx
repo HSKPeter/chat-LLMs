@@ -344,8 +344,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   // const toBlockUserAccess = !(apiKey || serverSideApiKeyIsSet)
   const toBlockUserAccess = false
 
-  const hasSelectedGptModel = selectedConversation?.model === LargeLanguageModels['gpt-3.5-turbo']
-  const hasSelectedCohereModel = selectedConversation?.model === LargeLanguageModels.cohere
+  const hasSelectedGptModel = selectedConversation?.model.id === "gpt-3.5-turbo"
+  const hasSelectedCohereModel = selectedConversation?.model.id === "cohere"
   const toShowTemperatureSlider = hasSelectedGptModel || hasSelectedCohereModel;
 
   return (
