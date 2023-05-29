@@ -5,8 +5,6 @@ import { useTranslation } from 'next-i18next';
 
 import { SupportedExportFormats } from '@/types/export';
 
-import { SidebarButton } from '../Sidebar/SidebarButton';
-
 interface Props {
   onImport: (data: SupportedExportFormats) => void;
 }
@@ -33,10 +31,9 @@ export const Import: FC<Props> = ({ onImport }) => {
           reader.readAsText(file);
         }}
       />
-
-      <SidebarButton
-        text={t('Import data')}
-        icon={<IconFileImport size={18} />}
+      <button
+        type="button"
+        className="flex justify-center px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
         onClick={() => {
           const importFile = document.querySelector(
             '#import-file',
@@ -45,7 +42,10 @@ export const Import: FC<Props> = ({ onImport }) => {
             importFile.click();
           }
         }}
-      />
+      >
+        <IconFileImport size={18} />
+        <div className="ml-2">{t('Import Data')}</div>
+      </button>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { IconFileExport, IconSettings } from '@tabler/icons-react';
+import { IconDatabase, IconFileExport, IconSettings } from '@tabler/icons-react';
 import { useContext, useState } from 'react';
 
 import { useTranslation } from 'next-i18next';
@@ -11,10 +11,12 @@ import { Import } from '../../Settings/Import';
 import { SidebarButton } from '../../Sidebar/SidebarButton';
 import ChatbarContext from '../Chatbar.context';
 import { ClearConversations } from './ClearConversations';
+import { ManageDataDialog } from '@/components/Settings/ManageDataDialog';
 
 export const ChatbarSettings = () => {
   const { t } = useTranslation('sidebar');
-  const [isSettingDialogOpen, setIsSettingDialog] = useState<boolean>(false);
+  const [isSettingDialogOpen, setIsSettingDialogOpen] = useState<boolean>(false);
+  const [isManageDataDialogOpen, setIsManageDataDialogOpen] = useState<boolean>(false);
 
   const {
     state: {
@@ -35,24 +37,37 @@ export const ChatbarSettings = () => {
         <ClearConversations onClearConversations={handleClearConversations} />
       ) : null}
 
-      <Import onImport={handleImportConversations} />
+      {/* <Import onImport={handleImportConversations} /> */}
 
-      <SidebarButton
+      {/* <SidebarButton
         text={t('Export data')}
         icon={<IconFileExport size={18} />}
         onClick={() => handleExportData()}
+      /> */}
+
+      <SidebarButton
+        text={t('Manage Data')}
+        icon={<IconDatabase size={18} />}
+        onClick={() => setIsManageDataDialogOpen(true)}
+      />
+
+      <ManageDataDialog
+        open={isManageDataDialogOpen}
+        onClose={() => {
+          setIsManageDataDialogOpen(false);
+        }}
       />
 
       <SidebarButton
         text={t('Settings')}
         icon={<IconSettings size={18} />}
-        onClick={() => setIsSettingDialog(true)}
+        onClick={() => setIsSettingDialogOpen(true)}
       />
 
       <SettingDialog
         open={isSettingDialogOpen}
         onClose={() => {
-          setIsSettingDialog(false);
+          setIsSettingDialogOpen(false);
         }}
       />
     </div>
