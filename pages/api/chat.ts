@@ -24,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
       const result = await huggingfaceGenerate(model, messages)
       return new Response(result);
     } else if (isCohereModel(model)) {
-      const result = await cohereGenerate(messages)
+      const result = await cohereGenerate(messages, temperature)
       return new Response(result);
     }
 

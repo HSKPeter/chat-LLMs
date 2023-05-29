@@ -122,6 +122,7 @@ export const OpenAIStream = async (
 
 export const cohereGenerate = async (
   message: Message[],
+  temperature: number = 0.9,
 ) => {
 
   const prompt = message.map((m) => `${m.role === 'user' ? 'Q' : 'A'}: ${m.content}`).join('\n') + "Q: ";
@@ -135,7 +136,7 @@ export const cohereGenerate = async (
       model: 'command-xlarge-nightly',
       prompt,
       max_tokens: 300,
-      temperature: 0.9,
+      temperature: temperature,
       k: 0,
       stop_sequences: [],
       return_likelihoods: 'NONE'

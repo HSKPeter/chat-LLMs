@@ -3,7 +3,7 @@ import { useContext } from 'react';
 
 import { useTranslation } from 'next-i18next';
 
-import { LargeLanguageModel } from '@/types/llm';
+import { LargeLanguageModel, LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 
 import HomeContext from '@/pages/api/home/home.context';
 
@@ -26,6 +26,8 @@ export const ModelSelect = () => {
       });
   };
 
+  const selectedModel = selectedConversation?.model?.id || defaultModelId;
+
   return (
     <div className="flex flex-col">
       <label className="mb-2 text-left text-neutral-700 dark:text-neutral-400">
@@ -35,7 +37,7 @@ export const ModelSelect = () => {
         <select
           className="w-full bg-transparent p-2 outline-none"
           placeholder={t('Select a model') || ''}
-          value={selectedConversation?.model?.id || defaultModelId}
+          value={selectedModel}
           onChange={handleChange}
         >
           {models.map((model) => (
@@ -49,7 +51,7 @@ export const ModelSelect = () => {
           ))}
         </select>
       </div>
-      <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
+      {selectedModel === LargeLanguageModelID.GPT_3_5 && <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
         <a
           href="https://platform.openai.com/account/usage"
           target="_blank"
@@ -58,7 +60,7 @@ export const ModelSelect = () => {
           <IconExternalLink size={18} className={'inline mr-1'} />
           {t('View Account Usage')}
         </a>
-      </div>
+      </div>}
     </div>
   );
 };
