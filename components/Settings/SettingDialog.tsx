@@ -123,8 +123,8 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
                 onChange={(event) => setPromptOptimizationMode(event.target.value as PromptOptimizationMode)}
               >
                 <option value="none">{t('None')}</option>
-                <option value="without context">{t('Without context')}</option>
-                <option value="with full context">{t('With full context')}</option>
+                <option value="without context">{t('Optimize based on prompt input only')}</option>
+                <option value="with full context">{t('Optimize with full context of conversation history')}</option>
               </select>
             </div>
             
