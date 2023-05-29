@@ -5,7 +5,7 @@ import { LargeLanguageModel, LargeLanguageModelID, LargeLanguageModels } from '@
 import { OpenAIModel, OpenAIModelID } from '@/types/openai';
 import { PluginKey } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
-import { PromptOptimizationMode } from '@/types/settings';
+import { LightMode, PromptOptimizationMode } from '@/types/settings';
 
 export interface HomeInitialState {
   apiKey: string;
@@ -14,7 +14,7 @@ export interface HomeInitialState {
   huggingfaceApiKey: string;
   pluginKeys: PluginKey[];
   loading: boolean;
-  lightMode: 'light' | 'dark';
+  lightMode: LightMode;
   promptOptimizationMode: PromptOptimizationMode;
   messageIsStreaming: boolean;
   modelError: ErrorMessage | null;

@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useReducer, useRef } from 'react';
+import { FC, useContext, useEffect, useReducer, useRef, useState } from 'react';
 
 import { useTranslation } from 'next-i18next';
 
@@ -6,7 +6,7 @@ import { useCreateReducer } from '@/hooks/useCreateReducer';
 
 import { getSettings, saveSettings } from '@/utils/app/settings';
 
-import { Settings } from '@/types/settings';
+import { LightMode, PromptOptimizationMode, Settings } from '@/types/settings';
 
 import HomeContext from '@/pages/api/home/home.context';
 
@@ -18,11 +18,11 @@ interface Props {
 export const SettingDialog: FC<Props> = ({ open, onClose }) => {
   const { t } = useTranslation('settings');
   const settings: Settings = getSettings();
-  const { state, dispatch } = useCreateReducer<Settings>({
-    initialState: settings,
-  });
+  const [theme, setTheme] = useState<LightMode>(settings.theme);
+  const [promptOptimizationMode, setPromptOptimizationMode] = useState<PromptOptimizationMode>(settings.promptOptimizationMode);
+
   const { dispatch: homeDispatch } = useContext(HomeContext);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -33,6 +33,8 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
 
     const handleMouseUp = (e: MouseEvent) => {
       window.removeEventListener('mouseup', handleMouseUp);
+      setTheme(settings.theme);
+      setPromptOptimizationMode(settings.promptOptimizationMode);
       onClose();
     };
 
@@ -44,9 +46,9 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
   }, [onClose]);
 
   const handleSave = () => {
-    homeDispatch({ field: 'lightMode', value: state.theme });
-    homeDispatch({ field: 'promptOptimizationMode', value: state.promptOptimizationMode });
-    saveSettings(state);
+    homeDispatch({ field: 'lightMode', value: theme });
+    homeDispatch({ field: 'promptOptimizationMode', value: promptOptimizationMode });
+    saveSettings({ theme, promptOptimizationMode });
   };
 
   // Render nothing if the dialog is not open.
@@ -79,10 +81,8 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
 
             <select
               className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring focus:border-blue-500 rounded-md"
-              value={state.theme}
-              onChange={(event) =>
-                dispatch({ field: 'theme', value: event.target.value })
-              }
+              value={theme}
+              onChange={(event) => setTheme(event.target.value as LightMode)}
             >
               <option value="dark">{t('Dark mode')}</option>
               <option value="light">{t('Light mode')}</option>
@@ -94,8 +94,8 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
 
             <select
               className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring focus:border-blue-500 rounded-md"
-              value={state.promptOptimizationMode}
-              onChange={(event) => dispatch({ field: 'promptOptimizationMode', value: event.target.value })}
+              value={promptOptimizationMode}
+              onChange={(event) => setPromptOptimizationMode(event.target.value as PromptOptimizationMode)}
             >
               <option value="none">{t('None')}</option>
               <option value="without context">{t('Without context')}</option>
