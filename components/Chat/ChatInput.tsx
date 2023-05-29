@@ -249,53 +249,57 @@ export const ChatInput = ({
 
     setIsOptimizingPrompt(true);
 
-    const chatBody: ChatBody = {
-      model: selectedConversation?.model ?? LargeLanguageModels['gpt-3.5-turbo'],
-      messages: [],
-      key: process.env.OPENAI_API_KEY ?? "",
-      prompt: formPromptForPromptOptimization(content, selectedConversation?.messages),
-      temperature: selectedConversation?.temperature ?? 0.7,
-    };
+    try {
+      const chatBody: ChatBody = {
+        model: selectedConversation?.model ?? LargeLanguageModels['gpt-3.5-turbo'],
+        messages: [],
+        key: openAiApiKey,
+        prompt: formPromptForPromptOptimization(content, selectedConversation?.messages),
+        temperature: selectedConversation?.temperature ?? 0.7,
+      };
 
-    const controller = new AbortController();
-    const response = await fetch("api/prompt", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify(chatBody),
-    });
+      const controller = new AbortController();
+      const response = await fetch("api/prompt", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify(chatBody),
+      });
 
-    if (!response.ok) {
-      return;
-    }
-
-    const data = response.body;
-
-    if (!data) {
-      return;
-    }
-
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-    let text = '';
-
-    while (!done) {
-      if (stopConversationRef.current === true) {
-        controller.abort();
-        done = true;
-        break;
+      if (!response.ok) {
+        throw new Error('Error optimizing prompt.');
       }
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      text += chunkValue;
-      setContent(text);
+
+      const data = response.body;
+
+      if (!data) {
+        throw new Error('No data returned');
+      }
+
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let text = '';
+
+      while (!done) {
+        if (stopConversationRef.current === true) {
+          controller.abort();
+          done = true;
+          break;
+        }
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        text += chunkValue;
+        setContent(text);
+      }
+    } catch (error) {
+      toast.error('Error optimizing prompt.');
+    } finally {
+      setIsOptimizingPrompt(false);
     }
-    
-    setIsOptimizingPrompt(false);
   }
 
   const handleSubmit = (updatedVariables: string[]) => {
