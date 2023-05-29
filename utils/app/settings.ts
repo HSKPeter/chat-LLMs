@@ -5,6 +5,7 @@ const STORAGE_KEY = 'settings';
 export const getSettings = (): Settings => {
   let settings: Settings = {
     theme: 'dark',
+    promptOptimizationMode: 'without context',
   };
   const settingsJson = localStorage.getItem(STORAGE_KEY);
   if (settingsJson) {

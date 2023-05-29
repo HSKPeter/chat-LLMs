@@ -45,6 +45,7 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
 
   const handleSave = () => {
     homeDispatch({ field: 'lightMode', value: state.theme });
+    homeDispatch({ field: 'promptOptimizationMode', value: state.promptOptimizationMode });
     saveSettings(state);
   };
 
@@ -93,10 +94,8 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
 
             <select
               className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200"
-              value={state.theme}
-              onChange={(event) => {}
-                // dispatch({ field: 'theme', value: event.target.value })
-              }
+              value={state.promptOptimizationMode}
+              onChange={(event) => dispatch({ field: 'promptOptimizationMode', value: event.target.value })}
             >
               <option value="none">{t('None')}</option>
               <option value="without context">{t('Without context')}</option>

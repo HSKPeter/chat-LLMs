@@ -5,6 +5,7 @@ import { LargeLanguageModel, LargeLanguageModelID, LargeLanguageModels } from '@
 import { OpenAIModel, OpenAIModelID } from '@/types/openai';
 import { PluginKey } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
+import { PromptOptimizationMode } from '@/types/settings';
 
 export interface HomeInitialState {
   apiKey: string;
@@ -14,6 +15,7 @@ export interface HomeInitialState {
   pluginKeys: PluginKey[];
   loading: boolean;
   lightMode: 'light' | 'dark';
+  promptOptimizationMode: PromptOptimizationMode;
   messageIsStreaming: boolean;
   modelError: ErrorMessage | null;
   models: LargeLanguageModel[];
@@ -41,6 +43,7 @@ export const initialState: HomeInitialState = {
   loading: false,
   pluginKeys: [],
   lightMode: 'dark',
+  promptOptimizationMode: 'without context',
   messageIsStreaming: false,
   modelError: null,
   models: [

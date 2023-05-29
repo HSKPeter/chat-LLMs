@@ -38,26 +38,6 @@ interface Props {
   showScrollDownButton: boolean;
 }
 
-const formPromptForPromptOptimization = (prompt: string, messages: Message[] = []) => {
-  const previousConversationHistory = messages.map((message) => {
-    return `${message.role}: ${message.content}`;
-  }).join('\n');
-  return `
-  ${
-    messages.length > 0
-    ? `Here is the previous conversation history
-    """
-    ${previousConversationHistory}
-    """`
-    : ''
-  }
-  
-  Optimize this prompt "${prompt}"
-  
-  Your output should be the optimized prompt ONLY, no other text, no quotation marks.
-  `;
-};
-
 export const ChatInput = ({
   onSend,
   onRegenerate,
@@ -69,7 +49,7 @@ export const ChatInput = ({
   const { t } = useTranslation('chat');
 
   const {
-    state: { selectedConversation, messageIsStreaming, prompts },
+    state: { selectedConversation, messageIsStreaming, prompts, promptOptimizationMode },
 
     dispatch: homeDispatch,
   } = useContext(HomeContext);
@@ -83,13 +63,33 @@ export const ChatInput = ({
   const [variables, setVariables] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [plugin, setPlugin] = useState<Plugin | null>(null);
-  const toEnablePromptOptimizationFeature = selectedConversation?.model && isGptModel(selectedConversation?.model);
+  const toEnablePromptOptimizationFeature = selectedConversation?.model && isGptModel(selectedConversation?.model) && promptOptimizationMode !== 'none';
 
   const promptListRef = useRef<HTMLUListElement | null>(null);
 
   const filteredPrompts = prompts.filter((prompt) =>
     prompt.name.toLowerCase().includes(promptInputValue.toLowerCase()),
   );
+
+  const formPromptForPromptOptimization = (prompt: string, messages: Message[] = []) => {
+    const previousConversationHistory = messages.map((message) => {
+      return `${message.role}: ${message.content}`;
+    }).join('\n');
+    return `
+    ${
+      messages.length > 0 && promptOptimizationMode === 'with full context'
+      ? `Here is the previous conversation history
+      """
+      ${previousConversationHistory}
+      """`
+      : ''
+    }
+    
+    Optimize this prompt "${prompt}"
+    
+    Your output should be the optimized prompt ONLY, no other text, no quotation marks.
+    `;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -233,6 +233,7 @@ export const ChatInput = ({
 
   const optimizePrompt = async () => {
     if (content === undefined || content.trim().length === 0) {
+      alert("Please enter a prompt before performing prompt optimization.");
       return
     }
 
