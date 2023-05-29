@@ -48,7 +48,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       selectedConversation,
       conversations,
       models,
-      apiKey,
+      openAiApiKey,
       pluginKeys,
       serverSideApiKeyIsSet,
       messageIsStreaming,
@@ -97,7 +97,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         const chatBody: ChatBody = {
           model: updatedConversation.model,
           messages: updatedConversation.messages,
-          key: apiKey,
+          key: openAiApiKey,
           prompt: updatedConversation.prompt,
           temperature: updatedConversation.temperature,
         };
@@ -247,7 +247,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       }
     },
     [
-      apiKey,
+      openAiApiKey,
       conversations,
       pluginKeys,
       selectedConversation,
