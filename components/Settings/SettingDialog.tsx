@@ -78,7 +78,7 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
             </div>
 
             <select
-              className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200"
+              className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring focus:border-blue-500 rounded-md"
               value={state.theme}
               onChange={(event) =>
                 dispatch({ field: 'theme', value: event.target.value })
@@ -93,7 +93,7 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
             </div>
 
             <select
-              className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200"
+              className="w-full cursor-pointer bg-transparent p-2 text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring focus:border-blue-500 rounded-md"
               value={state.promptOptimizationMode}
               onChange={(event) => dispatch({ field: 'promptOptimizationMode', value: event.target.value })}
             >
