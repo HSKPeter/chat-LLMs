@@ -96,7 +96,7 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
               {t('Settings')}
             </div>
             
-            <div className="my-8">
+            <div className="mb-8">
               <div className="text-sm font-bold my-2 text-black dark:text-neutral-200 flex items-center">
                 <IconBrush size={18}/>
                 <div className="ml-2">{t('Theme')}</div>
