@@ -8,7 +8,6 @@ import Head from 'next/head';
 
 import { useCreateReducer } from '@/hooks/useCreateReducer';
 
-import useErrorService from '@/services/errorService';
 import useApiService from '@/services/useApiService';
 
 import {
@@ -41,22 +40,26 @@ import { HomeInitialState, initialState } from './home.state';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { getToken } from 'next-auth/jwt';
+import { USER_ROLE } from '@/types/userRole';
+
 interface Props {
   serverSideApiKeyIsSet: boolean;
   serverSidePluginKeysSet: boolean;
   defaultModelId: OpenAIModelID;
+  userRole: USER_ROLE;
+  userEmail: string;
 }
 
 const Home = ({
   serverSideApiKeyIsSet,
   serverSidePluginKeysSet,
   defaultModelId,
+  userRole,
+  userEmail
 }: Props) => {
   const { t } = useTranslation('chat');
   const { getModels } = useApiService();
-  const { getModelsError } = useErrorService();
-  const [initialRender, setInitialRender] = useState<boolean>(true);
-
   const contextValue = useCreateReducer<HomeInitialState>({
     initialState,
   });
@@ -69,7 +72,6 @@ const Home = ({
       conversations,
       selectedConversation,
       prompts,
-      temperature,
     },
     dispatch,
   } = contextValue;
@@ -201,6 +203,14 @@ const Home = ({
   };
 
   // EFFECTS  --------------------------------------------
+
+  useEffect(() => {
+    dispatch({field: 'role', value: userRole});
+  }, [userRole]);
+
+  useEffect(() => {
+    dispatch({field: 'userEmail', value: userEmail});
+  }, [userEmail]);
 
   useEffect(() => {
     if (window.innerWidth < 640) {
@@ -397,7 +407,14 @@ const Home = ({
 };
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const {locale, req} = context;
+
+  const payload = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
   const defaultModelId =
     (process.env.DEFAULT_MODEL &&
       Object.values(OpenAIModelID).includes(
@@ -418,6 +435,8 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
       serverSideApiKeyIsSet: !!process.env.OPENAI_API_KEY,
+      userRole: payload?.userRole ?? USER_ROLE.GUEST,
+      userEmail: payload?.email ?? '',
       defaultModelId,
       serverSidePluginKeysSet,
       ...(await serverSideTranslations(locale ?? 'en', [
