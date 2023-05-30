@@ -14,6 +14,16 @@ export const config = {
   runtime: 'edge',
 };
 
+class UnauthorizedError extends Error {
+  constructor(email: string | undefined | null) {
+    const msg = email 
+      ? `User with email ${email} is not authorized to use this API`
+      : 'User is not authorized to use this API';
+    super(msg);
+    this.name = 'UnauthorizedError';
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   try {
     const { model, messages, key, prompt, temperature } = (await req.json()) as ChatBody;
@@ -69,9 +79,11 @@ const handler = async (req: Request): Promise<Response> => {
     console.error(error);
     if (error instanceof OpenAIError) {
       return new Response('Error', { status: 500, statusText: error.message });
+    } else if (error instanceof UnauthorizedError) {
+      return new Response('Error', { status: 401 });
     } else {
       return new Response('Error', { status: 500 });
-    }
+    } 
   }
 };
 

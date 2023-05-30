@@ -1,7 +1,12 @@
-import { IconBrandGithub, IconBrandGoogle, IconFileExport } from '@tabler/icons-react';
-import { FC, useEffect, useRef } from 'react';
-import { useTranslation } from 'next-i18next';
+import {
+  IconBrandGithub,
+  IconBrandGoogle,
+  IconFileExport,
+} from '@tabler/icons-react';
 import { signIn } from 'next-auth/react';
+import { FC, useEffect, useRef, useState } from 'react';
+
+import { useTranslation } from 'next-i18next';
 
 interface Props {
   open: boolean;
@@ -11,6 +16,7 @@ interface Props {
 export const LoginDialog: FC<Props> = ({ open, onClose }) => {
   const { t } = useTranslation('settings');
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -55,22 +61,36 @@ export const LoginDialog: FC<Props> = ({ open, onClose }) => {
               {t('Login')}
             </div>
             <div className="flex justify-around flex-col md:flex-row">
-              <button
-                type="button"
-                className="flex justify-center px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
-                onClick={() => signIn('github')}
-              >
-                <IconBrandGithub size={18}/>
-                <div className="ml-2">{t('GitHub')}</div>
-              </button>
-              <button
-                type="button"
-                className="flex justify-center px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
-                onClick={() => signIn('google')}
-              >
-                <IconBrandGoogle size={18}/>
-                <div className="ml-2">{t('Google')}</div>
-              </button>
+              {isLoading ? (
+                <div className="flex justify-center items-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900 dark:border-white" />
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="flex justify-center px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
+                    onClick={() => {
+                      setIsLoading(true);
+                      signIn('github');
+                    }}
+                  >
+                    <IconBrandGithub size={18} />
+                    <div className="ml-2">{t('GitHub')}</div>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex justify-center px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
+                    onClick={() => {
+                      setIsLoading(true);
+                      signIn('google');
+                    }}
+                  >
+                    <IconBrandGoogle size={18} />
+                    <div className="ml-2">{t('Google')}</div>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

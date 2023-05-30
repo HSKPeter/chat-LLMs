@@ -35,6 +35,7 @@ import { TemperatureSlider } from './Temperature';
 import { MemoizedChatMessage } from './MemoizedChatMessage';
 import { ModelLabel } from '../Chatbar/components/ModelLabel';
 import { LargeLanguageModels } from '@/types/llm';
+import { USER_ROLE } from '@/types/userRole';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -50,11 +51,10 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       models,
       openAiApiKey,
       pluginKeys,
-      serverSideApiKeyIsSet,
-      messageIsStreaming,
       modelError,
       loading,
       prompts,
+      role
     },
     handleUpdateConversation,
     dispatch: homeDispatch,
@@ -72,7 +72,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
       if (selectedConversation) {
-        if (openAiApiKey.trim().length === 0 && selectedConversation.model === LargeLanguageModels['gpt-3.5-turbo']) {
+        if (role !== USER_ROLE.ADMIN && openAiApiKey.trim().length === 0 && selectedConversation.model === LargeLanguageModels['gpt-3.5-turbo']) {
           toast.error(t('OpenAI API key is not set.  Please configure it in the settings modal.'));
           return;
         }
@@ -145,6 +145,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         if (!plugin) {
           if (updatedConversation.messages.length === 1) {
             const { content } = message;
+            console.log('content', content);
             const customName =
               content.length > 30 ? content.substring(0, 30) + '...' : content;
             updatedConversation = {

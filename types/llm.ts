@@ -88,7 +88,7 @@ export const LargeLanguageModels: Record<LargeLanguageModelID, LargeLanguageMode
     tokenLimit: DEFAULT_TOKEN_LIMIT,
     type: LargeLanguageModelType.HUGGING_FACE,
     description: 'An amazing conversational AI.',
-    remarks: "Some advanced prompting techniques of GPT-3.5 may not be supported in this model."
+    remarks: "This is a relatively lightweight model that returns short messages.  You may check out HuggingChat for a more powerful OpenAssistant model."
   },  
   [LargeLanguageModelID.PEGASUS_TLDR]: {
     id: LargeLanguageModelID.PEGASUS_TLDR,
