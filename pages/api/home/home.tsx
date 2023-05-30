@@ -27,7 +27,7 @@ import { getSettings } from '@/utils/app/settings';
 import { Conversation } from '@/types/chat';
 import { KeyValuePair } from '@/types/data';
 import { FolderInterface, FolderType } from '@/types/folder';
-import { fallbackModelID } from '@/types/openai';
+import { fallbackModelID } from '@/types/llm';
 import { Prompt } from '@/types/prompt';
 
 import { Chat } from '@/components/Chat/Chat';
