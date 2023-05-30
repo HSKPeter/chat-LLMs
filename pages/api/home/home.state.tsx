@@ -6,6 +6,7 @@ import { OpenAIModel, OpenAIModelID } from '@/types/openai';
 import { PluginKey } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
 import { LightMode, PromptOptimizationMode } from '@/types/settings';
+import { USER_ROLE } from '@/types/userRole';
 
 export interface HomeInitialState {
   apiKey: string;
@@ -33,6 +34,7 @@ export interface HomeInitialState {
   defaultModelId: OpenAIModelID | undefined;
   serverSideApiKeyIsSet: boolean;
   serverSidePluginKeysSet: boolean;
+  role: USER_ROLE;
 }
 
 export const initialState: HomeInitialState = {
@@ -65,4 +67,5 @@ export const initialState: HomeInitialState = {
   defaultModelId: undefined,
   serverSideApiKeyIsSet: false,
   serverSidePluginKeysSet: false,
+  role: USER_ROLE.GUEST
 };

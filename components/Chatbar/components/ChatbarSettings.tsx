@@ -1,4 +1,4 @@
-import { IconDatabase, IconFileExport, IconSettings } from '@tabler/icons-react';
+import { IconDatabase, IconLogin, IconLogout, IconSettings } from '@tabler/icons-react';
 import { useContext, useState } from 'react';
 
 import { useTranslation } from 'next-i18next';
@@ -7,28 +7,30 @@ import HomeContext from '@/pages/api/home/home.context';
 
 import { SettingDialog } from '@/components/Settings/SettingDialog';
 
-import { Import } from '../../Settings/Import';
 import { SidebarButton } from '../../Sidebar/SidebarButton';
 import ChatbarContext from '../Chatbar.context';
 import { ClearConversations } from './ClearConversations';
 import { ManageDataDialog } from '@/components/Settings/ManageDataDialog';
+import { LoginDialog } from '@/components/Settings/LoginDialog';
+import { USER_ROLE } from '@/types/userRole';
+import { signOut } from 'next-auth/react';
 
 export const ChatbarSettings = () => {
   const { t } = useTranslation('sidebar');
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState<boolean>(false);
   const [isManageDataDialogOpen, setIsManageDataDialogOpen] = useState<boolean>(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState<boolean>(false);
 
   const {
     state: {
       conversations,
+      role
     },
     dispatch: homeDispatch,
   } = useContext(HomeContext);
 
   const {
     handleClearConversations,
-    handleImportConversations,
-    handleExportData,
   } = useContext(ChatbarContext);
 
   return (
@@ -36,14 +38,6 @@ export const ChatbarSettings = () => {
       {conversations.length > 0 ? (
         <ClearConversations onClearConversations={handleClearConversations} />
       ) : null}
-
-      {/* <Import onImport={handleImportConversations} /> */}
-
-      {/* <SidebarButton
-        text={t('Export data')}
-        icon={<IconFileExport size={18} />}
-        onClick={() => handleExportData()}
-      /> */}
 
       <SidebarButton
         text={t('Manage Data')}
@@ -70,6 +64,31 @@ export const ChatbarSettings = () => {
           setIsSettingDialogOpen(false);
         }}
       />
+
+      {
+        role === USER_ROLE.GUEST 
+          ? (
+            <>
+              <SidebarButton
+                text={t('Login')}
+                icon={<IconLogin size={18} />}
+                onClick={() => setIsLoginDialogOpen(true)}
+              />
+
+              <LoginDialog 
+                open={isLoginDialogOpen} 
+                onClose={() => setIsLoginDialogOpen(false)} 
+              />            
+            </>
+          )
+          : (
+            <SidebarButton
+              text={t('Logout')}
+              icon={<IconLogout size={18} />}
+              onClick={() => signOut({ callbackUrl: '/' })}
+            />            
+          )
+      }
     </div>
   );
 };
