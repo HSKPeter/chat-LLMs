@@ -87,7 +87,12 @@ export const ChatbarSettings = () => {
               text={t('Logout')}
               supplementaryText={`(${userEmail})`}
               icon={<IconLogout size={18} />}
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={() => {
+                const hasConfirmedSignout = confirm("Confirm to logout?");
+                if (hasConfirmedSignout) {
+                  signOut({ callbackUrl: '/' });
+                }
+              }}
             />            
           )
       }
