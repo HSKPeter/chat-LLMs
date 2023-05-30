@@ -27,7 +27,7 @@ import { getSettings } from '@/utils/app/settings';
 import { Conversation } from '@/types/chat';
 import { KeyValuePair } from '@/types/data';
 import { FolderInterface, FolderType } from '@/types/folder';
-import { OpenAIModelID, OpenAIModels, fallbackModelID } from '@/types/openai';
+import { fallbackModelID } from '@/types/openai';
 import { Prompt } from '@/types/prompt';
 
 import { Chat } from '@/components/Chat/Chat';
@@ -42,11 +42,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { getToken } from 'next-auth/jwt';
 import { USER_ROLE } from '@/types/userRole';
+import { LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 
 interface Props {
   serverSideApiKeyIsSet: boolean;
   serverSidePluginKeysSet: boolean;
-  defaultModelId: OpenAIModelID;
+  defaultModelId: LargeLanguageModelID;
   userRole: USER_ROLE;
   userEmail: string;
 }
@@ -163,10 +164,10 @@ const Home = ({
       name: t('New Conversation'),
       messages: [],
       model: lastConversation?.model || {
-        id: OpenAIModels[defaultModelId].id,
-        name: OpenAIModels[defaultModelId].name,
-        maxLength: OpenAIModels[defaultModelId].maxLength,
-        tokenLimit: OpenAIModels[defaultModelId].tokenLimit,
+        id: LargeLanguageModels[defaultModelId].id,
+        name: LargeLanguageModels[defaultModelId].name,
+        maxLength: LargeLanguageModels[defaultModelId].maxLength,
+        tokenLimit: LargeLanguageModels[defaultModelId].tokenLimit,
       },
       prompt: DEFAULT_SYSTEM_PROMPT,
       temperature: lastConversation?.temperature ?? DEFAULT_TEMPERATURE,
@@ -345,7 +346,7 @@ const Home = ({
           id: uuidv4(),
           name: t('New Conversation'),
           messages: [],
-          model: OpenAIModels[defaultModelId],
+          model: LargeLanguageModels[defaultModelId],
           prompt: DEFAULT_SYSTEM_PROMPT,
           temperature: lastConversation?.temperature ?? DEFAULT_TEMPERATURE,
           folderId: null,
@@ -417,8 +418,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const defaultModelId =
     (process.env.DEFAULT_MODEL &&
-      Object.values(OpenAIModelID).includes(
-        process.env.DEFAULT_MODEL as OpenAIModelID,
+      Object.values(LargeLanguageModelID).includes(
+        process.env.DEFAULT_MODEL as LargeLanguageModelID,
       ) &&
       process.env.DEFAULT_MODEL) ||
     fallbackModelID;

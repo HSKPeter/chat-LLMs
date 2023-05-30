@@ -1,4 +1,4 @@
-import { IconExternalLink } from '@tabler/icons-react';
+import { IconAlertCircle, IconExternalLink } from '@tabler/icons-react';
 import { useContext } from 'react';
 
 import { useTranslation } from 'next-i18next';
@@ -51,6 +51,14 @@ export const ModelSelect = () => {
           ))}
         </select>
       </div>
+      {
+        selectedModel &&
+        selectedModel === LargeLanguageModelID.OPEN_ASSISTANT &&
+        <div className="mt-5 mb-3 w-full inline-flex flex-row items-start text-left text-neutral-700 dark:text-neutral-400">
+          <div><IconAlertCircle size={18}/></div>
+          <div className="ml-1">{LargeLanguageModels[selectedModel].remarks}</div>            
+        </div>
+      }
       {selectedModel === LargeLanguageModelID.GPT_3_5 && <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
         <a
           href="https://platform.openai.com/account/usage"
@@ -59,6 +67,17 @@ export const ModelSelect = () => {
         >
           <IconExternalLink size={18} className={'inline mr-1'} />
           {t('View Account Usage')}
+        </a>
+      </div>}
+
+      {selectedModel === LargeLanguageModelID.OPEN_ASSISTANT && <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
+        <a
+          href="https://huggingface.co/chat/"
+          target="_blank"
+          className="flex items-center"
+        >
+          <IconExternalLink size={18} className={'inline mr-1'} />
+          {t('Visit HuggingChat')}
         </a>
       </div>}
     </div>
