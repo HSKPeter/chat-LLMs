@@ -8,7 +8,6 @@ import Head from 'next/head';
 
 import { useCreateReducer } from '@/hooks/useCreateReducer';
 
-import useErrorService from '@/services/errorService';
 import useApiService from '@/services/useApiService';
 
 import {
@@ -49,27 +48,18 @@ interface Props {
   serverSidePluginKeysSet: boolean;
   defaultModelId: OpenAIModelID;
   userRole: USER_ROLE;
+  userEmail: string;
 }
 
 const Home = ({
   serverSideApiKeyIsSet,
   serverSidePluginKeysSet,
   defaultModelId,
-  userRole
+  userRole,
+  userEmail
 }: Props) => {
   const { t } = useTranslation('chat');
   const { getModels } = useApiService();
-  const { getModelsError } = useErrorService();
-  const [initialRender, setInitialRender] = useState<boolean>(true);
-  // const { data: session, status } = useSession()
-  // const s = useSession()
-  // const csrfToken = await getCsrfToken()
-
-  // console.log("session", csrfToken)
-
-  console.log(userRole)
-
-
   const contextValue = useCreateReducer<HomeInitialState>({
     initialState,
   });
@@ -82,7 +72,6 @@ const Home = ({
       conversations,
       selectedConversation,
       prompts,
-      role
     },
     dispatch,
   } = contextValue;
@@ -218,6 +207,10 @@ const Home = ({
   useEffect(() => {
     dispatch({field: 'role', value: userRole});
   }, [userRole]);
+
+  useEffect(() => {
+    dispatch({field: 'userEmail', value: userEmail});
+  }, [userEmail]);
 
   useEffect(() => {
     if (window.innerWidth < 640) {
@@ -443,6 +436,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       serverSideApiKeyIsSet: !!process.env.OPENAI_API_KEY,
       userRole: payload?.userRole ?? USER_ROLE.GUEST,
+      userEmail: payload?.email ?? '',
       defaultModelId,
       serverSidePluginKeysSet,
       ...(await serverSideTranslations(locale ?? 'en', [

@@ -24,7 +24,8 @@ export const ChatbarSettings = () => {
   const {
     state: {
       conversations,
-      role
+      role,
+      userEmail
     },
     dispatch: homeDispatch,
   } = useContext(HomeContext);
@@ -84,6 +85,7 @@ export const ChatbarSettings = () => {
           : (
             <SidebarButton
               text={t('Logout')}
+              supplementaryText={`(${userEmail})`}
               icon={<IconLogout size={18} />}
               onClick={() => signOut({ callbackUrl: '/' })}
             />            

@@ -35,6 +35,7 @@ export interface HomeInitialState {
   serverSideApiKeyIsSet: boolean;
   serverSidePluginKeysSet: boolean;
   role: USER_ROLE;
+  userEmail: string;
 }
 
 export const initialState: HomeInitialState = {
@@ -67,5 +68,6 @@ export const initialState: HomeInitialState = {
   defaultModelId: undefined,
   serverSideApiKeyIsSet: false,
   serverSidePluginKeysSet: false,
-  role: USER_ROLE.GUEST
+  role: USER_ROLE.GUEST,
+  userEmail: ''
 };
