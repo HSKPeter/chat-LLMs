@@ -55,7 +55,7 @@ export const ModelSelect = () => {
         selectedModel &&
         selectedModel === LargeLanguageModelID.OPEN_ASSISTANT &&
         <div className="mt-5 mb-3 w-full inline-flex flex-row items-start text-left text-neutral-700 dark:text-neutral-400">
-          <div><IconAlertCircle size={18}/></div>
+          <div className='mt-1'><IconAlertCircle size={18}/></div>
           <div className="ml-1">{LargeLanguageModels[selectedModel].remarks}</div>            
         </div>
       }
