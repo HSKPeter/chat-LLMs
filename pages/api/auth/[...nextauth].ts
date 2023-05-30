@@ -14,9 +14,12 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-const ADMIN_EMAILS: string[] = JSON.parse(process.env.ADMIN_EMAILS || "[]");
+const readEmailsFromEnv = (envName: string): string[] => {
+  return JSON.parse(process.env[envName] || "[]").map(({email}: {email: string}) => email);
+}
 
-const MEMBER_EMAILS: string[] = JSON.parse(process.env.MEMBER_EMAILS || "[]");
+export const ADMIN_EMAILS: string[] = readEmailsFromEnv("ADMIN_EMAILS");
+export const MEMBER_EMAILS: string[] = readEmailsFromEnv("MEMBER_EMAILS");
 
 const providers = [];
 
