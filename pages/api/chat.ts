@@ -9,10 +9,23 @@ import wasm from '../../node_modules/@dqbd/tiktoken/lite/tiktoken_bg.wasm?module
 import tiktokenModel from '@dqbd/tiktoken/encoders/cl100k_base.json';
 import { Tiktoken, init } from '@dqbd/tiktoken/lite/init';
 import { isCohereModel, isHuggingFaceModel } from '@/types/llm';
+import { getToken } from "next-auth/jwt"
+import { NextApiRequest } from 'next';
+import { ADMIN_EMAILS } from './auth/[...nextauth]';
 
 export const config = {
   runtime: 'edge',
 };
+
+class UnauthorizedError extends Error {
+  constructor(email: string | undefined | null) {
+    const msg = email 
+      ? `User with email ${email} is not authorized to use this API`
+      : 'User is not authorized to use this API';
+    super(msg);
+    this.name = 'UnauthorizedError';
+  }
+}
 
 const handler = async (req: Request): Promise<Response> => {
   try {
@@ -26,6 +39,14 @@ const handler = async (req: Request): Promise<Response> => {
     } else if (isCohereModel(model)) {
       const result = await cohereGenerate(messages, temperature)
       return new Response(result);
+    }
+    
+    // @ts-ignore
+    const token = await getToken({req}); // Docs: https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken
+    const email = token?.email;
+
+    if (!email || !ADMIN_EMAILS.includes(email)) {
+      throw new UnauthorizedError(email);
     }
 
     const encoding = new Tiktoken(
@@ -69,9 +90,11 @@ const handler = async (req: Request): Promise<Response> => {
     console.error(error);
     if (error instanceof OpenAIError) {
       return new Response('Error', { status: 500, statusText: error.message });
+    } else if (error instanceof UnauthorizedError) {
+      return new Response('Error', { status: 401 });
     } else {
       return new Response('Error', { status: 500 });
-    }
+    } 
   }
 };
 
