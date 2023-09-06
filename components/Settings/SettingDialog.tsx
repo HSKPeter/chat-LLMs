@@ -22,11 +22,11 @@ export const SettingDialog: FC<Props> = ({ open, onClose }) => {
   const [theme, setTheme] = useState<LightMode>(settings.theme);
   const [promptOptimizationMode, setPromptOptimizationMode] = useState<PromptOptimizationMode>(settings.promptOptimizationMode);
 
-  const { state: {
-    openAiApiKey,
-    cohereApiKey,
-    huggingfaceApiKey,
-  }, dispatch: homeDispatch } = useContext(HomeContext);
+  const { state, dispatch: homeDispatch } = useContext(HomeContext);
+
+  const openAiApiKey = localStorage.getItem('openAiApiKey') || state.openAiApiKey; 
+  const cohereApiKey = localStorage.getItem('cohereApiKey') || state.cohereApiKey;
+  const huggingfaceApiKey = localStorage.getItem('huggingfaceApiKey') || state.huggingfaceApiKey;
 
   const {
     handleOpenAiApiKeyChange,
