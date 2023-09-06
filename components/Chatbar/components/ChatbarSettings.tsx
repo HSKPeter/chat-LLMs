@@ -90,6 +90,7 @@ export const ChatbarSettings = () => {
               onClick={() => {
                 const hasConfirmedSignout = confirm("Confirm to logout?");
                 if (hasConfirmedSignout) {
+                  homeDispatch({ field: 'role', value: USER_ROLE.GUEST });
                   signOut({ callbackUrl: '/' });
                 }
               }}

@@ -17,7 +17,7 @@ export interface LargeLanguageModel {
 export enum LargeLanguageModelID {
   GPT_3_5 = 'gpt-3.5-turbo',
   // GPT_3_5_AZ = 'gpt-35-turbo',
-  // GPT_4 = 'gpt-4',
+  GPT_4 = 'gpt-4',
   // GPT_4_32K = 'gpt-4-32k',
   COHERE = 'cohere',
   BLOOM = 'bigscience/bloom',
@@ -54,6 +54,15 @@ export const LargeLanguageModels: Record<LargeLanguageModelID, LargeLanguageMode
     description: 'An autoregressive language model built by OpenAI.',
     remarks: 'Each submission would induce cost in your OpenAI account.  Please be aware of the cost before submitting.  It is strongly recommended to closely monitor your OpenAI account balance, to avoid cost overruns.'
   },
+  [LargeLanguageModelID.GPT_4]: {
+    id: LargeLanguageModelID.GPT_4,
+    name: 'OpenAI GPT-4',
+    maxLength: 12000,
+    tokenLimit: 4000,
+    type: LargeLanguageModelType.OPEN_AI,
+    description: 'The latest autoregressive language model built by OpenAI.',
+    remarks: 'Each submission would induce cost in your OpenAI account.  Please be aware of the cost before submitting.  It is strongly recommended to closely monitor your OpenAI account balance, to avoid cost overruns.'
+  },  
   [LargeLanguageModelID.COHERE]: {
     id: LargeLanguageModelID.COHERE,
     name: 'Cohere Co.Generate',
