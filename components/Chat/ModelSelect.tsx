@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next';
 import { LargeLanguageModel, LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 
 import HomeContext from '@/pages/api/home/home.context';
+import { isGptModelId } from '@/utils/app/gpt';
 
 export const ModelSelect = () => {
   const { t } = useTranslation('chat');
@@ -59,7 +60,7 @@ export const ModelSelect = () => {
           <div className="ml-1">{LargeLanguageModels[selectedModel].remarks}</div>            
         </div>
       }
-      {selectedModel === LargeLanguageModelID.GPT_3_5 && <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
+      {isGptModelId(selectedModel) && <div className="w-full mt-3 text-left text-neutral-700 dark:text-neutral-400 flex items-center">
         <a
           href="https://platform.openai.com/account/usage"
           target="_blank"

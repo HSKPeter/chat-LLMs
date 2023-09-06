@@ -34,8 +34,9 @@ import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
 import { MemoizedChatMessage } from './MemoizedChatMessage';
 import { ModelLabel } from '../Chatbar/components/ModelLabel';
-import { LargeLanguageModels } from '@/types/llm';
+import { LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 import { USER_ROLE } from '@/types/userRole';
+import { isGptModel } from '@/utils/app/gpt';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -60,6 +61,23 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     dispatch: homeDispatch,
   } = useContext(HomeContext);
 
+  useEffect(() => {
+    const isGpt4InModelSelections = models.find(model => model.id === 'gpt-4')
+    if (!isGpt4InModelSelections && role === USER_ROLE.ADMIN) {
+      const modelIds = Object.values(LargeLanguageModelID);
+      homeDispatch({
+        field: 'models',
+        value: [
+          ...models,
+          LargeLanguageModels['gpt-4']
+        ].sort((model1, model2) => {
+          return modelIds.indexOf(model1.id) - modelIds.indexOf(model2.id)
+        })
+      });
+    }
+  }, [role]);
+
+
   const [currentMessage, setCurrentMessage] = useState<Message>();
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [showScrollDownButton, setShowScrollDownButton] =
@@ -72,7 +90,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
       if (selectedConversation) {
-        if (role !== USER_ROLE.ADMIN && openAiApiKey.trim().length === 0 && selectedConversation.model === LargeLanguageModels['gpt-3.5-turbo']) {
+        if (role !== USER_ROLE.ADMIN && openAiApiKey.trim().length === 0 && isGptModel(selectedConversation.model)) {
           toast.error(t('OpenAI API key is not set.  Please configure it in the settings modal.'));
           return;
         }
@@ -145,7 +163,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         if (!plugin) {
           if (updatedConversation.messages.length === 1) {
             const { content } = message;
-            console.log('content', content);
             const customName =
               content.length > 30 ? content.substring(0, 30) + '...' : content;
             updatedConversation = {
@@ -345,7 +362,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   // const toBlockUserAccess = !(apiKey || serverSideApiKeyIsSet)
   const toBlockUserAccess = false
 
-  const hasSelectedGptModel = selectedConversation?.model.id === "gpt-3.5-turbo"
+  const hasSelectedGptModel = selectedConversation?.model.id === "gpt-3.5-turbo" || selectedConversation?.model.id === "gpt-4"
   const hasSelectedCohereModel = selectedConversation?.model.id === "cohere"
   const toShowTemperatureSlider = hasSelectedGptModel || hasSelectedCohereModel;
 
