@@ -36,7 +36,7 @@ import { MemoizedChatMessage } from './MemoizedChatMessage';
 import { ModelLabel } from '../Chatbar/components/ModelLabel';
 import { LargeLanguageModelID, LargeLanguageModels } from '@/types/llm';
 import { USER_ROLE } from '@/types/userRole';
-import { isGptModel } from '@/utils/app/gpt';
+import { isGptModelId } from '@/utils/app/gpt';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -90,7 +90,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
       if (selectedConversation) {
-        if (role !== USER_ROLE.ADMIN && openAiApiKey.trim().length === 0 && isGptModel(selectedConversation.model)) {
+        if (role !== USER_ROLE.ADMIN && openAiApiKey.trim().length === 0 && isGptModelId(selectedConversation.model.id)) {
           toast.error(t('OpenAI API key is not set.  Please configure it in the settings modal.'));
           return;
         }
@@ -362,7 +362,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   // const toBlockUserAccess = !(apiKey || serverSideApiKeyIsSet)
   const toBlockUserAccess = false
 
-  const hasSelectedGptModel = selectedConversation?.model.id === "gpt-3.5-turbo" || selectedConversation?.model.id === "gpt-4"
+  const hasSelectedGptModel = isGptModelId(selectedConversation?.model.id)
   const hasSelectedCohereModel = selectedConversation?.model.id === "cohere"
   const toShowTemperatureSlider = hasSelectedGptModel || hasSelectedCohereModel;
 

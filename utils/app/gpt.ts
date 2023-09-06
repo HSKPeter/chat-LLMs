@@ -1,9 +1,5 @@
-import { LargeLanguageModel, LargeLanguageModelID } from "@/types/llm";
+import { LargeLanguageModelID } from "@/types/llm";
 
-export function isGptModel(llm: LargeLanguageModel) {
-    return llm.id === LargeLanguageModelID.GPT_3_5 || llm.id === LargeLanguageModelID.GPT_4;
-}
-
-export function isGptModelId(llmId: LargeLanguageModelID | undefined) {
-    return llmId === LargeLanguageModelID.GPT_3_5 || llmId === LargeLanguageModelID.GPT_4;
+export function isGptModelId(llm: LargeLanguageModelID | undefined) {
+    return llm === LargeLanguageModelID.GPT_3_5 || llm === LargeLanguageModelID.GPT_4;
 }
